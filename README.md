@@ -11,7 +11,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 
 
 
-*(Suggestion: Take a screenshot of your final Ghost post on both a desktop and a mobile device and add it here.)*
+*(Coming Soon: screenshot of your final Ghost post on both a desktop and a mobile device and add it here.)*
 
 ---
 
