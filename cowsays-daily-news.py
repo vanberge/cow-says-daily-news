@@ -338,7 +338,6 @@ except Exception as e:
     print(f"Warning: Error fetching newsletters: {e}. Defaulting to '{newsletter_slug}'.")
 
 
-
 # STEP 4b - Create Draft Post 
 
 print(f"Creating draft post...")
