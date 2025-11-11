@@ -1,4 +1,5 @@
 ## All imports and API keys at the top ##
+#########################################
 
 import google.generativeai as genai
 import os
@@ -8,54 +9,74 @@ import jwt
 import json
 import html
 
-# --- Configure Gemini ---
-GEMINI_API_KEY = " "
+# --- NewsAPI.org Config --- #
+NEWS_API_KEY = " " #Your NewsAPI.org API Key
+
+# --- Gemini Config --- #
+GEMINI_API_KEY = " " #Your Gemini API Key
 genai.configure(api_key=GEMINI_API_KEY)
 
-# --- Ghost API Config ---
+# --- Ghost API Config --- #
 ADMIN_API_KEY = " "
-GHOST_URL = " " 
+GHOST_URL = " " #https://<your site>.ghost.io
 
 
-## Step 1 - Get the News with Gemini ##
+## Step 1 - Get the News with NewsAPI.org ##
+############################################
 
-def get_news_from_gemini():
+def get_top_headlines():
     """
-    Uses Google Gemini to find the top 20 US headlines and format them
-    as a JSON list.
+    Fetches the top 20 US headlines using the official NewsAPI.org v2 endpoint.
+    Documentation: https://newsapi.org/docs/endpoints/top-headlines
     """
-    print("Connecting to Gemini to fetch news...")
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    print("Connecting to NewsAPI.org to fetch top headlines...")
 
-    prompt = """
-    You are a news aggregation service. Your task is to find the top 20 most important news headlines in the United States *right now*.
-    You must respond with ONLY a valid JSON-formatted list. Do not include any other text, pre-amble, or markdown backticks like ```json or ```.
-    The list should contain 20 JSON objects. Each object must have the following exact structure:
-    {
-      "title": "The full headline of the article",
-      "url": "The direct URL to the article",
-      "source": {
-        "name": "The common name of the news source (e.g., 'The New York Times', 'CNN', 'Reuters')"
-      }
+    url = "https://newsapi.org/v2/top-headlines"
+
+    # Define parameters according to NewsAPI docs
+    params = {
+        'country': 'us',      # standard 2-letter ISO 3166-1 code
+        'pageSize': 25        # limit to 25 articles
     }
-    """
+
+    # It's best practice to pass the API key in the header
+    headers = {
+        'X-Api-Key': NEWS_API_KEY
+    }
 
     try:
-        response = model.generate_content(prompt)
-        json_text = response.text.strip().replace("```json", "").replace("```", "")
-        articles_list = json.loads(json_text)
-        return articles_list
-    except Exception as e:
-        print(f"Error fetching or parsing news from Gemini: {e}")
-        if 'response' in locals():
-            print(f"Gemini's raw (unparsed) response: {response.text}")
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status() # Raises error for 4xx/5xx status codes
+
+        data = response.json()
+
+        # NewsAPI returns a 'status' field we should check
+        if data.get('status') != 'ok':
+            print(f"NewsAPI Error: {data.get('code')} - {data.get('message')}")
+            return []
+
+        # The articles are exactly where we need them
+        articles = data.get('articles', [])
+        return articles
+
+    except requests.exceptions.RequestException as e:
+        print(f"Network error fetching news: {e}")
+        return []
+    except json.JSONDecodeError:
+        print("Error: Received invalid JSON from NewsAPI.")
         return []
 
-articles = get_news_from_gemini()
-print(f"Successfully fetched {len(articles)} articles.")
+# --- Execution of step 1 ---
+articles = get_top_headlines()
+
+if articles:
+    print(f"Successfully fetched {len(articles)} headlines from NewsAPI.org.")
+else:
+    print("Warning: Failed to fetch articles. Continuing with empty data.")
 
 
 ## Step 2 - Classify the news into Categories ##
+################################################
 
 print("Classifying news articles...")
 model = genai.GenerativeModel('gemini-2.5-flash')
@@ -112,7 +133,8 @@ for article in articles:
 print("Classification complete.")
 
 
-## Step 3 - Build "Cowsay" ##
+## Step 3 - Build "CowSay" format ##
+####################################
 
 print("Generating modern HTML summary...")
 
@@ -122,13 +144,13 @@ def create_html_summary(grouped_headlines):
     HTML/CSS block that looks like a modern cowsay post.
     """
 
-    # We build the HTML and CSS as a single string.
+    # Build the HTML and CSS as a single string.
     # CSS is "scoped" to the .cow-post container to avoid
     # messing with Blog theme.
 
     html_parts = []
 
-    # --- 1. The CSS (inline <style> block) ---
+    # --- The CSS (inline <style> block) ---
     html_parts.append("""
     <style>
         .cow-post {
@@ -150,14 +172,13 @@ def create_html_summary(grouped_headlines):
         .cow-post .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -20px;
-            left: 60px;
-            border-width: 20px 20px 0 0;
+            bottom: -30px; /* Was -20px */
+            left: 60px; /* Unchanged, adjust if you want to move it left/right */
+            border-width: 30px 30px 30px 30px; /* Was 20px 20px 0 0 */
             border-style: solid;
             border-color: #f8f9fa transparent transparent transparent;
-            /* This little trick makes the tail's border match */
-            filter: drop-shadow(0 2px 0 #dee2e6);
-            transform: rotate(15deg);
+            filter: drop-shadow(0 3px 0 #dee2e6);
+            transform: rotate(-135deg);
         }
         .cow-post h2 {
             font-size: 1.8em;
@@ -213,10 +234,10 @@ def create_html_summary(grouped_headlines):
     </style>
     """)
 
-    # --- HTML Structure ---
+    # --- HTML Structure --- #
     html_parts.append('<div class="cow-post">')
     html_parts.append('  <div class="speech-bubble">')
-    html_parts.append("    <h2>Moo-rning! Here's your daily US news summary...</h2>")
+    html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
 
     # Loop through topics and build HTML lists
     for topic, articles in grouped_headlines.items():
@@ -258,7 +279,8 @@ html_content_for_ghost = create_html_summary(grouped_headlines)
 print("HTML summary generated.")
 
 
-## Step 4 - Post it to Ghost (Corrected Fix) ##
+## Step 4 - Post it to Ghost ##
+###############################
 
 print("Posting to Ghost...")
 
@@ -296,7 +318,7 @@ mobiledoc_payload = {
 
 data = {
     'posts': [{
-        'title': f'Your Daily Cowsay News - {time.strftime("%B %d, %Y")}',
+        'title': f'Cow Says Daily News - {time.strftime("%B %d, %Y")}',
 
         # We are using the 'mobiledoc' key
         'mobiledoc': json.dumps(mobiledoc_payload),
