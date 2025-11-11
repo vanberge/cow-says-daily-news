@@ -293,25 +293,8 @@ print("HTML summary generated.")
 ## Step 4 - Post it to Ghost ##
 ###############################
 
-print("Posting to Ghost...")
-
-try:
-    key_id, key_secret = ADMIN_API_KEY.split(':')
-except ValueError:
-    print("Error: ADMIN_API_KEY is not in the correct 'id:secret' format.")
-    exit()
-
-payload = {
-    'iat': int(time.time()),
-    'exp': int(time.time()) + 300,
-    'aud': '/admin/'
-}
-token = jwt.encode(payload, bytes.fromhex(key_secret), algorithm='HS256', headers={'kid': key_id})
-
-post_url = f"{GHOST_URL}/ghost/api/admin/posts/?send_email=true"
-headers = {
-    'Authorization': f'Ghost {token}'
-}
+# Add the 'newsletter' query parameter to trigger the email
+post_url = f"{GHOST_URL}/ghost/api/admin/posts/?newsletter={newsletter_slug}"
 
 # Create a Mobiledoc payload that uses a single "html" card.
 mobiledoc_payload = {
@@ -319,7 +302,6 @@ mobiledoc_payload = {
     "markups": [],
     "atoms": [],
     "cards": [
-        # This tells Ghost to render the raw HTML, including <style> tags
         ["html", {"html": html_content_for_ghost}]
     ],
     "sections": [
@@ -330,11 +312,10 @@ mobiledoc_payload = {
 data = {
     'posts': [{
         'title': f'Cow Says Daily News - {time.strftime("%B %d, %Y")}',
-
-        # We are using the 'mobiledoc' key
         'mobiledoc': json.dumps(mobiledoc_payload),
-
-        'status': 'published'
+        'status': 'published',
+        # Explicitly tell Ghost to email 'all' subscribers with the 'newsletter' param defined above
+        'email_recipient_filter': 'all' 
     }]
 }
 
@@ -342,6 +323,8 @@ data = {
 response = requests.post(post_url, json=data, headers=headers)
 
 if response.status_code == 201:
-    print("Successfully posted and emailed the news!")
+    res_json = response.json()
+    post_uuid = res_json['posts'][0]['uuid']
+    print(f"Successfully posted and emailed! (Post UUID: {post_uuid})")
 else:
     print(f"Failed to post: {response.status_code} - {response.text}")
