@@ -9,9 +9,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 
 ## Final Post Example
 
-
-
-*(Coming Soon: screenshot of your final Ghost post on both a desktop and a mobile device and add it here.)*
+![Alt text](./screenshot.png?raw=true "Final Post Example")
 
 ---
 
