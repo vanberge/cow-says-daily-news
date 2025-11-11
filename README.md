@@ -1,5 +1,6 @@
 # Cow-Says Daily News Bot
 
+[![Cow-Says Daily News Bot](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml/badge.svg)](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
