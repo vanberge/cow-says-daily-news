@@ -69,6 +69,7 @@ The script operates in four main steps:
 
 Open the main Python script (`your_script_name.py`) and set the following variables at the top:
 
+* `NEWS_API_KEY`: Your NewsAPI key from NewsAPI.org.
 * `GEMINI_API_KEY`: Your API key from Google AI Studio.
 * `ADMIN_API_KEY`: Your Ghost Admin API Key (in the format `id:secret`).
 * `GHOST_URL`: The full URL of your blog (e.g., `https://my-blog.ghost.io`).
@@ -80,4 +81,4 @@ Open the main Python script (`your_script_name.py`) and set the following variab
 Once configured, you can run the bot manually:
 
 ```bash
-python your_script_name.py
+python cowsays-daily-news.py
