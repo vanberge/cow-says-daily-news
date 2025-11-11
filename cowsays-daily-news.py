@@ -9,16 +9,27 @@ import jwt
 import json
 import html
 
-# --- NewsAPI.org Config --- #
-NEWS_API_KEY = " " #Your NewsAPI.org API Key
+# --- NewsAPI.org Config ---
+# Read API key from environment variable
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+if not NEWS_API_KEY:
+    raise ValueError("NEWS_API_KEY environment variable not set.")
 
-# --- Gemini Config --- #
-GEMINI_API_KEY = " " #Your Gemini API Key
+# --- Configure Gemini ---
+# Read API key from environment variable
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY environment variable not set.")
 genai.configure(api_key=GEMINI_API_KEY)
 
-# --- Ghost API Config --- #
-ADMIN_API_KEY = " "
-GHOST_URL = " " #https://<your site>.ghost.io
+# --- Ghost API Config ---
+# Read API key from environment variable
+ADMIN_API_KEY = os.environ.get("ADMIN_API_KEY")
+if not ADMIN_API_KEY:
+    raise ValueError("ADMIN_API_KEY environment variable not set.")
+GHOST_URL = os.environ.get("GHOST_URL")
+if not GHOST_URL:
+    raise ValueError("GHOST_URL environment variable not set.")
 
 
 ## Step 1 - Get the News with NewsAPI.org ##
