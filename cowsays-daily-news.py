@@ -292,6 +292,53 @@ print("HTML summary generated.")
 
 ## Step 4 - Post it to Ghost ##
 ###############################
+print("Posting to Ghost...")
+
+try:
+    key_id, key_secret = ADMIN_API_KEY.split(':')
+except ValueError:
+    print("Error: ADMIN_API_KEY is not in the correct 'id:secret' format.")
+    sys.exit(1)
+
+# Prepare the JWT Token
+# The token is valid for 5 minutes, sufficient for both requests below.
+iat = int(time.time())
+header = {'alg': 'HS256', 'typ': 'JWT', 'kid': key_id}
+payload = {
+    'iat': iat,
+    'exp': iat + 300,
+    'aud': '/admin/'
+}
+token = jwt.encode(payload, bytes.fromhex(key_secret), algorithm='HS256', headers=header)
+
+headers = {
+    'Authorization': f'Ghost {token}'
+}
+
+## STEP 4a - Get the Newsletter Slug ##
+#######################################
+
+newsletter_slug = "default-newsletter" # Fallback
+try:
+    news_url = f"{GHOST_URL}/ghost/api/admin/newsletters/"
+    news_response = requests.get(news_url, headers=headers)
+    
+    if news_response.status_code == 200:
+        news_data = news_response.json()
+        # Find the first active newsletter
+        active_newsletters = [n for n in news_data.get('newsletters', []) if n.get('status') == 'active']
+        if active_newsletters:
+            newsletter_slug = active_newsletters[0]['slug']
+            print(f"found active newsletter: {newsletter_slug}")
+    else:
+        print(f"Warning: Could not fetch newsletters ({news_response.status_code}). Defaulting to '{newsletter_slug}'.")
+
+except Exception as e:
+    print(f"Warning: Error fetching newsletters: {e}. Defaulting to '{newsletter_slug}'.")
+
+
+## STEP 4a - Post and email ##
+#######################################
 
 # Add the 'newsletter' query parameter to trigger the email
 post_url = f"{GHOST_URL}/ghost/api/admin/posts/?newsletter={newsletter_slug}"
