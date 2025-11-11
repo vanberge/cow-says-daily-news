@@ -3,7 +3,7 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-A daily news bot that uses the Google Gemini API to curate top US headlines, classifies them into categories, formats them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
+A daily news bot that uses the NewsAPI.org and Google Gemini API to curate top US headlines, classifies them into categories, formats them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
 
 This project started as an experiment with ASCII `cowsay` art and evolved into a fully responsive HTML/CSS post to be mobile-friendly while keeping the original's spirit.
 
@@ -17,7 +17,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 
 ## Features
 
-* **AI-Powered News Aggregation:** Uses the Google Gemini API to fetch the top 20 US headlines.
+* **Automated News Aggregation:** Uses the NewsAPI.org API to get top news headlines.
 * **AI-Powered Classification:** Automatically classifies each headline into categories (Politics, Technology, Health, Sports, Business, etc.).
 * **Modern 'Cowsay' Formatting:** Generates a fully responsive, self-contained HTML/CSS post that mimics the classic `cowsay` speech bubble.
 * **Automatic Publishing:** Posts the final summary to your Ghost blog using the Admin API.
@@ -30,7 +30,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 The script operates in four main steps:
 
 1.  **Step 1: Fetch News**
-    A prompt to the Gemini API asks for the top 20 US headlines, with instructions to return a clean JSON list containing the `title`, `url`, and `source.name`.
+    Scrape NewsAPI.org for top headlines in the us (25 maximum articles) and return a clean JSON list containing the `title`, `url`, and `source.name`.
 
 2.  **Step 2: Classify News**
     The script iterates through each headline. A second Gemini API prompt classifies each one into a predefined category (e.g., `Politics`, `Technology`, `Other`). The classified articles are stored in a Python dictionary.
