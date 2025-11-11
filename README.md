@@ -9,7 +9,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 
 ## Final Post Example
 
-![Alt text](./screenshot.png?raw=true "Final Post Example")
+
 
 ---
 
