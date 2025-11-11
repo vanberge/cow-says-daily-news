@@ -292,6 +292,7 @@ print("HTML summary generated.")
 
 ## Step 4 - Post it to Ghost ##
 ###############################
+
 print("Posting to Ghost...")
 
 try:
@@ -315,8 +316,8 @@ headers = {
     'Authorization': f'Ghost {token}'
 }
 
-## STEP 4a - Get the Newsletter Slug ##
-#######################################
+
+# STEP 4a - Get the Newsletter Slug #
 
 newsletter_slug = "default-newsletter" # Fallback
 try:
@@ -337,11 +338,11 @@ except Exception as e:
     print(f"Warning: Error fetching newsletters: {e}. Defaulting to '{newsletter_slug}'.")
 
 
-## STEP 4a - Post and email ##
-#######################################
 
-# Add the 'newsletter' query parameter to trigger the email
-post_url = f"{GHOST_URL}/ghost/api/admin/posts/?newsletter={newsletter_slug}"
+# STEP 4b - Create Draft Post 
+
+print(f"Creating draft post...")
+create_url = f"{GHOST_URL}/ghost/api/admin/posts/"
 
 # Create a Mobiledoc payload that uses a single "html" card.
 mobiledoc_payload = {
@@ -356,22 +357,54 @@ mobiledoc_payload = {
     ]
 }
 
-data = {
+draft_data = {
     'posts': [{
         'title': f'Cow Says Daily News - {time.strftime("%B %d, %Y")}',
         'mobiledoc': json.dumps(mobiledoc_payload),
-        'status': 'published',
-        # Explicitly tell Ghost to email 'all' subscribers with the 'newsletter' param defined above
-        'email_recipient_filter': 'all' 
+        'status': 'draft' 
     }]
 }
 
-# Make the API call
-response = requests.post(post_url, json=data, headers=headers)
+# Create the draft
+draft_response = requests.post(create_url, json=draft_data, headers=headers)
 
-if response.status_code == 201:
-    res_json = response.json()
-    post_uuid = res_json['posts'][0]['uuid']
-    print(f"Successfully posted and emailed! (Post UUID: {post_uuid})")
+if draft_response.status_code != 201:
+    print(f"Failed to create draft: {draft_response.status_code} - {draft_response.text}")
+    sys.exit(1)
+
+draft_json = draft_response.json()
+post_id = draft_json['posts'][0]['id']
+# We capture 'updated_at' to prevent conflict errors in the next step
+updated_at = draft_json['posts'][0]['updated_at']
+
+print(f"Draft created (ID: {post_id}). Publishing and emailing...")
+
+
+# STEP 4c - Publish and Email (Step 2 of 2)
+
+publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
+
+publish_data = {
+    'posts': [{
+        'updated_at': updated_at, # Must match the current server state
+        'status': 'published',
+        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
+    }]
+}
+
+publish_response = requests.put(publish_url, json=publish_data, headers=headers)
+
+if publish_response.status_code == 200:
+    res_json = publish_response.json()
+    post = res_json['posts'][0]
+    
+    # Check if email was actually triggered by inspecting the response
+    email_info = post.get('email')
+    if email_info:
+        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
+    else:
+        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
+        
+    print(f"Post URL: {post.get('url')}")
 else:
-    print(f"Failed to post: {response.status_code} - {response.text}")
+    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
