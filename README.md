@@ -62,7 +62,7 @@ The script operates in four main steps:
 
 2.  Install the required Python libraries:
     ```bash
-    pip install google-generativeai requests pyjwt
+    pip install requirements.txt
     ```
     *(Other libraries like `json`, `time`, `os`, and `html` are part of the standard Python library.)*
 
