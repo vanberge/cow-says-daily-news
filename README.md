@@ -60,7 +60,7 @@ The script operates in four main steps:
 
 2.  Install the required Python libraries:
     ```bash
-    pip install requirements.txt
+    pip install -r requirements.txt
     ```
     *(Other libraries like `json`, `time`, `os`, and `html` are part of the standard Python library.)*
 
