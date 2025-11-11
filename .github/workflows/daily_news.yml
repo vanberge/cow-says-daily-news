@@ -4,7 +4,7 @@ on:
   schedule:
     # Runs at 8:00 AM UTC every day
     # Adjust the cron schedule to your desired time
-    - cron: '55 12 * * *'
+    - cron: '10 8 * * *'
   workflow_dispatch:
     # This allows you to manually trigger the workflow from the GitHub Actions tab
 
