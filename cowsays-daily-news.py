@@ -98,7 +98,7 @@ def get_news_topic(headline):
     """
     prompt = f"""
     Classify the following news headline into ONLY one of these categories:
-    Politics, Technology, Health, Sports, Business, Entertainment, Other
+    Politics, Technology, Health, Sports, Business, Weather, Education, Entertainment, Other
 
     Headline: "{headline}"
     Category:
@@ -121,7 +121,7 @@ def get_news_topic(headline):
 
 grouped_headlines = {
     "Politics": [], "Technology": [], "Health": [], "Sports": [],
-    "Business": [], "Entertainment": [], "Other": []
+    "Business": [], "Weather": [], "Education": [], "Entertainment": [], "Other": []
 }
 
 for article in articles:
