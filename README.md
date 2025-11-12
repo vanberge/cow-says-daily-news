@@ -86,6 +86,7 @@ Once configured, you can run the bot manually:
 
 ```bash
 python cowsays-daily-news.py
+```
 
 ## MIT License
 
