@@ -2,7 +2,7 @@
 
 [![Cow-Says Daily News Bot](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml/badge.svg)](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit)
 
 A daily news bot that uses the NewsAPI.org and Google Gemini API to curate top US headlines, classifies them into categories, formats them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
 
@@ -18,7 +18,7 @@ This project started as an experiment with ASCII `cowsay` art and evolved into a
 
 * **Automated News Aggregation:** Uses the NewsAPI.org API to get top news headlines.
 * **AI-Powered Classification:** Automatically classifies each headline into categories (Politics, Technology, Health, Sports, Business, etc.).
-* **Modern 'Cowsay' Formatting:** Generates a fully responsive, self-contained HTML/CSS post that mimics the classic `cowsay` speech bubble.
+* **Modern 'Cowsay' Formatting:** Generates a clean and simple self-contained HTML/CSS post that mimics the classic `cowsay` speech bubble.
 * **Automatic Publishing:** Posts the final summary to your Ghost blog using the Admin API.
 * **Email Subscribers:** Automatically emails the new post to all your Ghost subscribers on publish.
 
@@ -47,7 +47,8 @@ The script operates in four main steps:
 ### 1. Prerequisites
 
 * Python 3.10+
-* A Google Gemini API Key
+* A NewsAPI.org API Key [Link](https://newsapi.org/docs)
+* A Google Gemini API Key [Link](https://ai.google.dev/gemini-api/docs/api-key)
 * A running Ghost blog
 * A Ghost Admin API Key (from your Ghost admin panel)
 
@@ -67,12 +68,15 @@ The script operates in four main steps:
 
 ### 3. Configuration
 
-Open the main Python script (`your_script_name.py`) and set the following variables at the top:
+Open the main Python script (`cowsays-daily-news.py`) and set the following variables at the top:
 
 * `NEWS_API_KEY`: Your NewsAPI key from NewsAPI.org.
 * `GEMINI_API_KEY`: Your API key from Google AI Studio.
 * `ADMIN_API_KEY`: Your Ghost Admin API Key (in the format `id:secret`).
 * `GHOST_URL`: The full URL of your blog (e.g., `https://my-blog.ghost.io`).
+
+Follow best practices and store these sensitive keys in an encrypted secrets manager!
+NOT in your souce code
 
 ---
 
@@ -82,3 +86,14 @@ Once configured, you can run the bot manually:
 
 ```bash
 python cowsays-daily-news.py
+
+## MIT License
+
+Copyright 2025 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
