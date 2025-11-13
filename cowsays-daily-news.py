@@ -89,16 +89,33 @@ else:
 ## Step 2 - Classify the news into Categories ##
 ################################################
 
-print("Classifying news articles...")
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 def get_news_topic(headline):
+    print("Classifying news article {}...".format(headline))
     """
     Uses Google Gemini to classify a headline into one of your topics.
     """
     prompt = f"""
-    Classify the following news headline into ONLY one of these categories:
-    Politics, Technology, Health, Sports, Business, Weather, Education, Entertainment, Other
+    You are an expert news article classifier. Your task is to analyze a news article headline and assign a single, most relevant category from the defined list.
+
+    **CATEGORY LIST AND DEFINITIONS:**
+    1.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
+    2.  **Technology:** Software, hardware, AI, social media platform changes, consumer electronics, cybersecurity.
+    3.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
+    4.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
+    5.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
+    6.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
+    7.  **Weather:** Notable forecasts, information on tornadoes, hurricanes, excessive heat or cold.
+    8.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
+    9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
+    10.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
+
+    **PRIORITIZATION RULES (TO REDUCE 'OTHER'):**
+    1.  **Choose the Primary Subject:** Classify based on the core event (e.g., Tech CEO Buys Political Ad -> Technology).
+    2.  **Be Aggressive:** You MUST select one of the defined categories (1-9) if there is any reasonable connection.
+    3.  **Ambiguity Fallback:** If a headline is ambiguous, default to the category that represents the broader trend or source institution.
+    4.  **Use 'Other' ONLY if categories 1-9 are not broadly applicable to the headline.**
 
     Headline: "{headline}"
     Category:
@@ -120,12 +137,18 @@ def get_news_topic(headline):
         return "Other"
 
 grouped_headlines = {
-    "Politics": [], "Technology": [], "Health": [], "Sports": [],
-    "Business": [], "Weather": [], "Education": [], "Entertainment": [], "Other": []
+    "Politics": [], "Technology": [], "Health": [], "Business": [], "Sports": [],
+    "Science": [], "Weather": [], "Education": [], "Entertainment": [], "Other": []
 }
 
 for article in articles:
     headline = article['title']
+
+    print("Checking for Horoscopes...") #these show up sometimes in NewsAPI.org, we dont want them
+    if "horoscope" in headline.lower():
+        print(f"-> Filtered (Horoscope): {headline}")
+        continue
+
     topic = get_news_topic(headline)
     source_name = article.get('source', {}).get('name', 'Unknown Source')
 
@@ -135,7 +158,7 @@ for article in articles:
         "url": article['url']
     }
 
-    if topic in grouped_headlines and len(grouped_headlines[topic]) < 8:
+    if topic in grouped_headlines and len(grouped_headlines[topic]) < 10:
         grouped_headlines[topic].append(article_data)
     elif topic not in grouped_headlines:
         if len(grouped_headlines["Other"]) < 8:
@@ -162,6 +185,7 @@ def create_html_summary(grouped_headlines):
     html_parts = []
 
     # --- The CSS (inline <style> block) ---
+    html_parts.append('<!--kg-card-begin: html-->') #Needed for Ghost wrapping and conversion into lexicon format
     html_parts.append("""
     <style>
         .cow-post {
@@ -240,7 +264,7 @@ def create_html_summary(grouped_headlines):
             text-align: left;
             /* Move cow to the left */
             margin-left: 1em;
-            white-space: pre;
+            white-space: pre-wrap;
         }
     </style>
     """)
@@ -271,15 +295,20 @@ def create_html_summary(grouped_headlines):
     html_parts.append('  </div>') # Close .speech-bubble
 
     # Add the cow (in a <pre> tag to preserve formatting)
+    
     cow_ascii = r"""
+< Thanks, this has been   >
+< Will MaCowvoy reporting >
+ --------------------------
         \   ^__^
          \  (oo)\_______
             (__)\       )\/\
                 ||----w |
                 ||     ||
-    """
+"""
     html_parts.append(f'  <pre class="cow-art">{html.escape(cow_ascii)}</pre>')
     html_parts.append('</div>') # Close .cow-post
+    html_parts.append('<!--kg-card-end: html-->') # Ghost wrapper closing
 
     return "\n".join(html_parts)
 
@@ -341,26 +370,14 @@ except Exception as e:
 # STEP 4b - Create Draft Post 
 
 print(f"Creating draft post...")
-create_url = f"{GHOST_URL}/ghost/api/admin/posts/"
+create_url = f"{GHOST_URL}/ghost/api/admin/posts/?source=html"
 
-# Create a Mobiledoc payload that uses a single "html" card.
-mobiledoc_payload = {
-    "version": "0.3.1",
-    "markups": [],
-    "atoms": [],
-    "cards": [
-        ["html", {"html": html_content_for_ghost}]
-    ],
-    "sections": [
-        [10, 0] # Section 10 (card), card index 0
-    ]
-}
-
+# Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
         'title': f'Cow Says Daily News - {time.strftime("%B %d, %Y")}',
-        'mobiledoc': json.dumps(mobiledoc_payload),
-        'status': 'draft' 
+        'html': html_content_for_ghost,  #use source?html in call now lets us use it here
+        'status': 'draft'  # Use 'published' to publish immediately
     }]
 }
 
