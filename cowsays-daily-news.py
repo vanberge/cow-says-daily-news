@@ -37,7 +37,7 @@ if not GHOST_URL:
 
 def get_top_headlines():
     """
-    Fetches the top 20 US headlines using the official NewsAPI.org v2 endpoint.
+    Fetches the top 25 US headlines using the official NewsAPI.org v2 endpoint.
     Documentation: https://newsapi.org/docs/endpoints/top-headlines
     """
     print("Connecting to NewsAPI.org to fetch top headlines...")
@@ -106,7 +106,7 @@ def get_news_topic(headline):
     4.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
     5.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
     6.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
-    7.  **Weather:** Notable forecasts, information on tornadoes, hurricanes, excessive heat or cold.
+    7.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
     8.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
     9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
     10.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
