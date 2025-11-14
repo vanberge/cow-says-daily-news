@@ -320,7 +320,7 @@ def create_html_summary(grouped_headlines):
 html_content_for_ghost = create_html_summary(grouped_headlines)
 
 # Test the output if needed (uncomment the line below)
-print(html_content_for_ghost)
+# print(html_content_for_ghost)
 print("HTML summary generated.")
 
 
