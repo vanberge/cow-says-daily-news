@@ -92,7 +92,7 @@ else:
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 def get_news_topic(headline):
-    print("Classifying news article {}...".format(headline))
+    print(f"Classifying news article: {headline}")
     """
     Uses Google Gemini to classify a headline into one of your topics.
     """

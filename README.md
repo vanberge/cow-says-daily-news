@@ -4,7 +4,7 @@
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/mit)
 
-A daily news bot that uses the NewsAPI.org and Google Gemini API to curate top US headlines and classify them into categories, format them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
+A daily news bot that uses NewsAPI.org and Google's Gemini LLM to curate top US headlines and classify them into categories, format them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
 
 This project started as an experiment with ASCII `cowsay` art and evolved into a fully responsive HTML/CSS post to be mobile-friendly while keeping the original's spirit.
 
@@ -56,7 +56,7 @@ The script operates in four main steps:
 
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/vanberge/cow-says-daily-news.git](https://github.com/vanberge/cow-says-daily-news.git)
+    git clone https://github.com/vanberge/cow-says-daily-news.git
     cd ./cow-says-daily-news
     ```
 
