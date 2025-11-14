@@ -144,11 +144,6 @@ grouped_headlines = {
 for article in articles:
     headline = article['title']
 
-    # Format from NewsAPI keeps the source as part of the headline.  This removes it
-    separator = ' - '
-    if separator in headline:
-        headline = headline.split(separator, 1)[0]
-
     print("Checking for Horoscopes...") #these show up sometimes in NewsAPI.org, we dont want them
     if "horoscope" in headline.lower():
         print(f"-> Filtered (Horoscope): {headline}")
@@ -156,6 +151,11 @@ for article in articles:
 
     topic = get_news_topic(headline)
     source_name = article.get('source', {}).get('name', 'Unknown Source')
+    
+    # Format from NewsAPI keeps the source as part of the headline.  This removes it
+    separator = ' - '
+    if separator in headline:
+        headline = headline.split(separator, 1)[0]
 
     article_data = {
         "headline": headline,
@@ -320,7 +320,7 @@ def create_html_summary(grouped_headlines):
 html_content_for_ghost = create_html_summary(grouped_headlines)
 
 # Test the output if needed (uncomment the line below)
-# print(html_content_for_ghost)
+print(html_content_for_ghost)
 print("HTML summary generated.")
 
 
