@@ -269,7 +269,8 @@ def create_html_summary(grouped_headlines):
             text-align: left;
             /* Move cow to the left */
             margin-left: 1em;
-            white-space: pre-wrap;
+            white-space: pre;
+            overflow-x: scroll;
         }
     </style>
     """)
