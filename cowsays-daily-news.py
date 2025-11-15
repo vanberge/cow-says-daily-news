@@ -380,7 +380,7 @@ create_url = f"{GHOST_URL}/ghost/api/admin/posts/?source=html"
 # Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
-        'title': f'Cow Says Daily News - {time.strftime("%B %d, %Y")}',
+        'title': f'Daily News - {time.strftime("%B %d, %Y")}',
         'html': html_content_for_ghost,  #use source?html in call now lets us use it here
         'status': 'draft'  # Use 'published' to publish immediately
     }]
