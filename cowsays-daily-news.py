@@ -228,7 +228,9 @@ print("Daily news summary generated.")
 
 def get_punny_title(summary_text):
     """
-    Uses Gemini to create a punny title based on the summary and today's date.   
+    Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
+    
+    FIX: Corrected API call to use system_instruction within a config object.
     """
     print("Generating punny post title...")
     current_date_mmddyyyy = time.strftime("%m/%d/%Y")
@@ -242,7 +244,7 @@ def get_punny_title(summary_text):
     
     prompt = f"Create a punny title based on this news summary:\n\n{summary_text}"
 
-    config = genai.types.GenerateContentConfig(
+    config = genai.types.GenerationConfig(
         system_instruction=system_instruction
     )
 
@@ -260,7 +262,6 @@ def get_punny_title(summary_text):
         time.sleep(1)
         # The model is instructed to include the date prefix.
         return response.text.strip()
-    
     except Exception as e:
         print(f"Error generating punny title: {e}")
         # Fallback generic title
@@ -357,6 +358,7 @@ def create_html_summary(grouped_headlines, daily_summary):
             color: #6c757d;
         }
         .cow-post .summary-paragraph {
+            margin-top: 1.5em;
             margin-bottom: 1.5em;
             padding: 0.5em 0;
             border-top: 1px solid #e9ecef;
