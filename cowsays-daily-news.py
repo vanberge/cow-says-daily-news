@@ -8,7 +8,7 @@ import requests
 import jwt
 import json
 import html
-import sys 
+import sys # Added: Necessary for sys.exit()
 
 # --- NewsAPI.org Config ---
 # Read API key from environment variable
@@ -228,7 +228,7 @@ print("Daily news summary generated.")
 
 def get_punny_title(summary_text):
     """
-    Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
+    Uses Gemini to create a punny title based on the summary and today's date.   
     """
     print("Generating punny post title...")
     current_date_mmddyyyy = time.strftime("%m/%d/%Y")
@@ -242,10 +242,14 @@ def get_punny_title(summary_text):
     
     prompt = f"Create a punny title based on this news summary:\n\n{summary_text}"
 
+    config = genai.types.GenerateContentConfig(
+        system_instruction=system_instruction
+    )
+
     try:
         response = model.generate_content(
             prompt,
-            system_instruction=system_instruction,
+            config=config, # Passed system_instruction via the config object
             safety_settings={
                 'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
                 'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
@@ -256,6 +260,7 @@ def get_punny_title(summary_text):
         time.sleep(1)
         # The model is instructed to include the date prefix.
         return response.text.strip()
+    
     except Exception as e:
         print(f"Error generating punny title: {e}")
         # Fallback generic title
@@ -333,7 +338,7 @@ def create_html_summary(grouped_headlines, daily_summary):
         }
         /* A "bullet" for the list */
         .cow-post li::before {
-            content: 'ðŸ®';
+            content: '🐮';
             position: absolute;
             left: 0;
             top: 0;
@@ -416,7 +421,7 @@ def create_html_summary(grouped_headlines, daily_summary):
     # Donation link in case anyone wants to help support 
     html_parts.append(""" 
     <div class="cow-post">
-      <a href="https://www.buymeacoffee.com/vanberge">ðŸ® Support the news!</a>
+      <a href="https://www.buymeacoffee.com/vanberge">🐮 Support the News!</a>
     </div>
     """)
     html_parts.append('<!--kg-card-end: html-->') # Ghost wrapper closing
