@@ -386,6 +386,7 @@ except Exception as e:
 print(f"Creating draft post...")
 create_url = f"{GHOST_URL}/ghost/api/admin/posts/?source=html"
 author_email = GHOST_AUTHOR 
+print(f"Author is {author_email}")
 
 # Create a payload that uses a single "html" card.
 draft_data = {
