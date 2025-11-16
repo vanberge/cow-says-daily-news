@@ -317,17 +317,9 @@ def create_html_summary(grouped_headlines):
     html_parts.append('</div>') # Close .cow-post
 
     # Donation link in case anyone wants to help support 
-    html_parts.append("""
-    <style>
-    .donate-bmc-button-container img:hover {
-      transform: scale(1.05);
-    }
-    </style>
-    
-    <div class="donate-bmc-button-container">
-      <a href="https://www.buymeacoffee.com/vanberge">
-        <img src="https://img.buymeacoffee.com/button-api/?text=Support the News!&emoji=🐮&slug=vanberge&button_colour=5F7FFF&font_colour=ffffff&font_family=Comic&outline_colour=000000&coffee_colour=FFDD00" alt="Buy Me A Coffee" />
-      </a>
+    html_parts.append(""" 
+    <div class="cow-post">
+      <a href="https://www.buymeacoffee.com/vanberge">🐮 Support the news!</a>
     </div>
     """)
     html_parts.append('<!--kg-card-end: html-->') # Ghost wrapper closing
