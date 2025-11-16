@@ -26,8 +26,9 @@ jobs:
 
     - name: Run Cow-Says News Bot
       env:
+        NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY }}
         GHOST_URL: ${{ secrets.GHOST_URL }}
-        NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+        GHOST_AUTHOR: ${{ secrets.GHOST_AUTHOR }}
       run: python cowsays-daily-news.py
