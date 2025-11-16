@@ -385,14 +385,16 @@ except Exception as e:
 
 print(f"Creating draft post...")
 create_url = f"{GHOST_URL}/ghost/api/admin/posts/?source=html"
-author_email = GHOST_AUTHOR 
+author_id = GHOST_AUTHOR 
 
 # Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
         'title': f'Daily News - {time.strftime("%B %d, %Y")}',
         'html': html_content_for_ghost,  # Use source?html in call now lets us use it here
-        'authors': [author_email], # Set the Author
+        'authors': [  # Set the Author
+            { "id": author_id }
+        ], 
         'status': 'draft'  # Use 'published' to publish immediately
     }]
 }
