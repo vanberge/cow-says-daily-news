@@ -174,76 +174,6 @@ for article in articles:
 
 print("Classification complete.")
 
-## Step 2.5 - Generate Summary and Punny Title ##
-############################################################
-
-def generate_summary_and_title(grouped_headlines):
-    """
-    Uses Google Gemini to generate a cow-pun headline and a summary of the top news,
-    using a structured JSON response for reliability.
-    """
-    print("Generating news summary and punny title...")
-    
-    # Filter out empty topics and format the remaining headlines for the prompt
-    news_for_gemini = {}
-    for topic, articles in grouped_headlines.items():
-        if articles:
-            # Create a list of headlines for the prompt
-            headlines_list = [f"- {art['headline']} ({art['source']})" for art in articles]
-            news_for_gemini[topic] = "\n".join(headlines_list)
-
-    news_text = json.dumps(news_for_gemini, indent=2)
-
-    system_prompt = "You are a witty copywriter and a concise news summarizer. Your tone should be lighthearted, and you must include a cow-related pun in the title."
-
-    user_query = f"""
-    Analyze the following categorized news headlines.
-    
-    1. **Generate a Title:** Create a short, catchy, cow-pun themed headline for the daily blog post.
-    2. **Generate a Summary:** Write a brief (2-3 sentence) summary that covers the 3-5 most important news topics evident in the headlines. Use standard text formatting.
-    
-    Headlines to Analyze (JSON):
-    {news_text}
-    """
-    
-    # Use response_mime_type and response_schema for reliable JSON output
-    try:
-        response = model.generate_content(
-            user_query,
-            config={
-                "system_instruction": system_prompt,
-                "response_mime_type": "application/json",
-                "response_schema": {
-                    "type": "object",
-                    "properties": {
-                        "punny_title": {"type": "string", "description": "The catchy, cow-pun themed headline for the blog post."},
-                        "summary": {"type": "string", "description": "A 2-3 sentence summary of the top news topics."}
-                    },
-                    "required": ["punny_title", "summary"]
-                }
-            },
-        )
-        
-        time.sleep(1) # Respect API rate limits
-        result = json.loads(response.text.strip())
-        
-        # Ensure the summary is not too long or too short for good presentation
-        if len(result['summary'].split()) < 10 or len(result['summary'].split()) > 70:
-             print("Warning: Generated summary length seems odd. Returning default.")
-             return f'Daily News - {time.strftime("%B %d, %Y")}', "No summary could be generated today. Please check the headlines below."
-             
-        return result['punny_title'], result['summary']
-        
-    except Exception as e:
-        print(f"Error generating summary/title: {e}")
-        # Return sensible defaults
-        return f'Daily News - {time.strftime("%B %d, %Y")}', "No summary could be generated today. Please check the headlines below."
-
-# --- Execution of step 2.5 ---
-punny_title, news_summary = generate_summary_and_title(grouped_headlines)
-print(f"Generated Title: {punny_title}")
-print(f"Generated Summary: {news_summary}")
-
 
 ## Step 3 - Build "CowSay" format ##
 ####################################
@@ -271,14 +201,6 @@ def create_html_summary(grouped_headlines):
             margin: 2em auto;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
-        }
-        .cow-post .summary { /* NEW STYLE FOR SUMMARY */
-            font-size: 1.1em; 
-            color: #495057; 
-            border-left: 4px solid #007bff; 
-            padding-left: 15px; 
-            margin-bottom: 2em;
-            margin-top: 1.5em;
         }
         .cow-post .speech-bubble {
             background-color: #f8f9fa;
@@ -358,14 +280,6 @@ def create_html_summary(grouped_headlines):
     html_parts.append('<div class="cow-post">')
     html_parts.append('  <div class="speech-bubble">')
     html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
-
-    # Inject the generated summary here
-    # Escape the summary text to prevent injection or formatting issues
-    html_parts.append(f"""
-        <p class="summary">
-          {html.escape(news_summary)}
-        </p>
-    """)
 
     # Loop through topics and build HTML lists
     for topic, articles in grouped_headlines.items():
@@ -476,7 +390,7 @@ author_id = GHOST_AUTHOR
 # Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
-        'title': f'Daily News - {time.strftime("%m/%d/%Y")} - {punny_title}',
+        'title': f'Daily News - {time.strftime("%B %d, %Y")}',
         'html': html_content_for_ghost,  # Use source?html in call now lets us use it here
         'authors': [  # Set the Author
             { "id": author_id }
@@ -500,5 +414,31 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
+# STEP 4c - Publish and Email (Step 2 of 2)
 
+publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
 
+publish_data = {
+    'posts': [{
+        'updated_at': updated_at, # Must match the current server state
+        'status': 'published',
+        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
+    }]
+}
+
+publish_response = requests.put(publish_url, json=publish_data, headers=headers)
+
+if publish_response.status_code == 200:
+    res_json = publish_response.json()
+    post = res_json['posts'][0]
+    
+    # Check if email was actually triggered by inspecting the response
+    email_info = post.get('email')
+    if email_info:
+        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
+    else:
+        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
+        
+    print(f"Post URL: {post.get('url')}")
+else:
+    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
