@@ -8,6 +8,7 @@ import requests
 import jwt
 import json
 import html
+import sys 
 
 # --- NewsAPI.org Config ---
 # Read API key from environment variable
@@ -155,7 +156,7 @@ for article in articles:
     topic = get_news_topic(headline)
     source_name = article.get('source', {}).get('name', 'Unknown Source')
     
-    # Format from NewsAPI keeps the source as part of the headline.  This removes it
+    # Format from NewsAPI keeps the source as part of the headline. This removes it
     separator = ' - '
     if separator in headline:
         headline = headline.split(separator, 1)[0]
@@ -175,21 +176,107 @@ for article in articles:
 print("Classification complete.")
 
 
-## Step 3 - Build "CowSay" format ##
+## NEW STEP 3 - Generate Summary and Punny Title ##
+###################################################
+
+def get_daily_summary(grouped_headlines):
+    """
+    Uses Gemini to create a one-paragraph summary of the most notable stories
+    from the grouped headlines, regardless of category. (Requirement 2)
+    """
+    print("Generating one-paragraph daily news summary...")
+    
+    headline_list = []
+    # Concatenate all headlines and sources into a single input string for the LLM
+    for topic, articles in grouped_headlines.items():
+        for article in articles:
+            # Format: "'Headline' (Source: SourceName in Category)"
+            headline_list.append(f"'{article['headline']}' (Source: {article['source']} in {topic})")
+    
+    if not headline_list:
+        return "No notable headlines were available today."
+
+    headline_input = "\n".join(headline_list)
+
+    prompt = f"""
+    Analyze the following list of news headlines and sources. Your goal is to synthesize the information and generate a single, compelling paragraph (maximum 5 concise sentences) summarizing the most notable and significant stories of the day, prioritizing global impact over niche topics. Mention 2-3 of the biggest news items.
+
+    **News Headlines and Context:**
+    {headline_input}
+
+    **Daily News Summary (Single Paragraph):**
+    """
+    try:
+        response = model.generate_content(
+            prompt,
+            safety_settings={
+                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
+                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
+                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
+                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
+            }
+        )
+        time.sleep(1)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error generating summary: {e}")
+        return "An issue occurred while generating the daily news summary."
+
+daily_summary = get_daily_summary(grouped_headlines)
+print("Daily news summary generated.")
+
+
+def get_punny_title(summary_text):
+    """
+    Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
+    """
+    print("Generating punny post title...")
+    current_date_mmddyyyy = time.strftime("%m/%d/%Y")
+    
+    # System instruction enforces the required title format
+    system_instruction = f"""
+    You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news.
+
+    **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News - {current_date_mmddyyyy} - ' followed immediately by the punny hook.
+    """
+    
+    prompt = f"Create a punny title based on this news summary:\n\n{summary_text}"
+
+    try:
+        response = model.generate_content(
+            prompt,
+            system_instruction=system_instruction,
+            safety_settings={
+                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
+                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
+                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
+                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
+            }
+        )
+        time.sleep(1)
+        # The model is instructed to include the date prefix.
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error generating punny title: {e}")
+        # Fallback generic title
+        return f"Daily News - {time.strftime('%m/%d/%Y')} - Your Daily Dose of Moo-sings"
+
+punny_title = get_punny_title(daily_summary)
+print(f"Punny title generated: '{punny_title}'")
+
+
+## Step 4 - Build "CowSay" format ##
 ####################################
 
 print("Generating modern HTML summary...")
 
-def create_html_summary(grouped_headlines):
+def create_html_summary(grouped_headlines, daily_summary):
     """
-    Formats the grouped headlines into a self-contained
+    Formats the grouped headlines and the daily summary into a self-contained
     HTML/CSS block that looks like a modern cowsay post.
     """
 
     # Build the HTML and CSS as a single string.
-    # CSS is "scoped" to the .cow-post container to avoid
-    # messing with Blog theme.
-
     html_parts = []
 
     # --- The CSS (inline <style> block) ---
@@ -246,7 +333,7 @@ def create_html_summary(grouped_headlines):
         }
         /* A "bullet" for the list */
         .cow-post li::before {
-            content: '🐮';
+            content: 'ðŸ®';
             position: absolute;
             left: 0;
             top: 0;
@@ -264,6 +351,12 @@ def create_html_summary(grouped_headlines):
             font-size: 0.9em;
             color: #6c757d;
         }
+        .cow-post .summary-paragraph {
+            margin-bottom: 1.5em;
+            padding: 0.5em 0;
+            border-top: 1px solid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
+        }
         .cow-post .cow-art {
             font-family: monospace, monospace;
             font-size: 1em;
@@ -280,6 +373,10 @@ def create_html_summary(grouped_headlines):
     html_parts.append('<div class="cow-post">')
     html_parts.append('  <div class="speech-bubble">')
     html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
+
+    # --- ADDED: Daily Summary Paragraph (Requirement 2 integration) ---
+    if daily_summary and daily_summary != "No notable headlines were available today.":
+        html_parts.append(f"    <p class='summary-paragraph'><strong>Today's Top Stories:</strong> {html.escape(daily_summary)}</p>")
 
     # Loop through topics and build HTML lists
     for topic, articles in grouped_headlines.items():
@@ -319,22 +416,23 @@ def create_html_summary(grouped_headlines):
     # Donation link in case anyone wants to help support 
     html_parts.append(""" 
     <div class="cow-post">
-      <a href="https://www.buymeacoffee.com/vanberge">🐮 Support the news!</a>
+      <a href="https://www.buymeacoffee.com/vanberge">ðŸ® Support the news!</a>
     </div>
     """)
     html_parts.append('<!--kg-card-end: html-->') # Ghost wrapper closing
 
     return "\n".join(html_parts)
 
-html_content_for_ghost = create_html_summary(grouped_headlines)
+# --- Updated function call to include the summary ---
+html_content_for_ghost = create_html_summary(grouped_headlines, daily_summary)
 
 # Test the output if needed (uncomment the line below)
 # print(html_content_for_ghost)
 print("HTML summary generated.")
 
 
-## Step 4 - Post it to Ghost ##
-###############################
+## Step 5 - Post it to Ghost (was Step 4) ##
+############################################
 
 print("Posting to Ghost...")
 
@@ -360,7 +458,7 @@ headers = {
 }
 
 
-# STEP 4a - Get the Newsletter Slug #
+# STEP 5a - Get the Newsletter Slug #
 
 newsletter_slug = "default-newsletter" # Fallback
 try:
@@ -381,7 +479,7 @@ except Exception as e:
     print(f"Warning: Error fetching newsletters: {e}. Defaulting to '{newsletter_slug}'.")
 
 
-# STEP 4b - Create Draft Post 
+# STEP 5b - Create Draft Post 
 
 print(f"Creating draft post...")
 create_url = f"{GHOST_URL}/ghost/api/admin/posts/?source=html"
@@ -390,7 +488,8 @@ author_id = GHOST_AUTHOR
 # Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
-        'title': f'Daily News - {time.strftime("%B %d, %Y")}',
+        # --- UPDATED: Use the punny_title (Requirement 1 integration) ---
+        'title': punny_title, 
         'html': html_content_for_ghost,  # Use source?html in call now lets us use it here
         'authors': [  # Set the Author
             { "id": author_id }
@@ -414,31 +513,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 4c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
