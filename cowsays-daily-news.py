@@ -312,6 +312,35 @@ def create_html_summary(grouped_headlines):
 """
     html_parts.append(f'  <pre class="cow-art">{html.escape(cow_ascii)}</pre>')
     html_parts.append('</div>') # Close .cow-post
+
+    # Donation link in case anyone wants to help support 
+    html_parts.append("""
+    <style>
+    .bmc-button-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 0;
+      width: 100%;
+    }
+
+    .bmc-button-container img {
+      height: 50px;
+      border-radius: 5px;
+      transition: transform 0.2s ease;
+    }
+
+    .bmc-button-container img:hover {
+      transform: scale(1.05);
+    }
+    </style>
+
+    <div class="bmc-button-container">
+      <a href="https://www.buymeacoffee.com/vanberge">
+        <img src="https://img.buymeacoffee.com/button-api/?text=Support the News!&emoji=🐮&slug=vanberge&button_colour=5F7FFF&font_colour=ffffff&font_family=Comic&outline_colour=000000&coffee_colour=FFDD00" alt="Buy Me A Coffee" />
+      </a>
+    </div>
+    """)
     html_parts.append('<!--kg-card-end: html-->') # Ghost wrapper closing
 
     return "\n".join(html_parts)
