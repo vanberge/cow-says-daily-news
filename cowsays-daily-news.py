@@ -164,7 +164,7 @@ for article in articles:
 
     #Filter out some sources
     print("Checking sources for and filtering out social media...") 
-    filter_urls = ( 'facebook.com', 'x.com','.gov', 'bsky.app')
+    filter_urls = ( 'facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com')
     article_url = article['url']
 
     if any(source in article_url for source in filter_urls):
