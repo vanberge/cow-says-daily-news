@@ -241,7 +241,7 @@ print(f"Punny title generated: '{punny_title}'")
 
 print("Generating modern HTML summary...")
 
-def create_html_summary(grouped_headlines, daily_summary):
+def create_html_summary(grouped_headlines):
     """
     Formats the grouped headlines and the daily summary into a self-contained
     HTML/CSS block that looks like a modern cowsay post.
