@@ -186,6 +186,10 @@ def get_punny_title(grouped_headlines):
     """
     print("Generating punny post title...")
     
+    # Get the current day of the week (e.g., "Monday") and construct the new prefix
+    day_name = datetime.datetime.now().strftime("%A")
+    title_prefix = f"{day_name}'s News:"
+    
     headline_list = []
     # Concatenate all headlines and sources into a single input string for the LLM
     for topic, articles in grouped_headlines.items():
@@ -198,13 +202,13 @@ def get_punny_title(grouped_headlines):
 
     headline_input = "\n".join(headline_list)
 
-    # System instruction enforces the required title format
+    # System instruction enforces the required title format, now using the dynamic prefix
     system_instruction = f"""
     You are an expert copywriter for a humorous daily news blog. 
     Your job is to create a short, catchy punny title that captures the essence of the day's news. 
     It should be "fun", but not offensive given the gravity of the news
 
-    **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News:' followed immediately by the punny hook.
+    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the punny hook.
     """
     
     # --- Merge instruction into the prompt ---
@@ -475,31 +479,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
