@@ -52,7 +52,7 @@ def get_top_headlines():
     # Define parameters according to NewsAPI docs
     params = {
         'country': 'us',      # standard 2-letter ISO 3166-1 code
-        'pageSize': 30        # limit to 30 articles
+        'pageSize': 26        # Shoot for 25 articles, with at least 1 filtered out.
     }
 
     # Pass the API key in the header
@@ -215,16 +215,17 @@ def get_punny_title(grouped_headlines):
     # System instruction enforces the required title format, now using the dynamic prefix
     system_instruction = f"""
     You are an expert copywriter for a fun daily news blog. 
-    Your job is to create a short, catchy title that captures the essence of the day's news. 
+    Your job is to create a short, catchy title that captures the essence of the day's news.
+    You will consider how impactful each headline is, and the title you generate should reference 1-2 of the headlines
     
-    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the punny hook.
+    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the catchy headline.
     """
     
     # --- Merge instruction into the prompt ---
     full_prompt = f"""
     {system_instruction}
 
-    Now, create the punny title based on this collection of news headlines:
+    Now, create the title based on this collection of news headlines.
     {headline_input}
     """
     try:
