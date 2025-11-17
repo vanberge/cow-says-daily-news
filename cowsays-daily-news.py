@@ -176,8 +176,8 @@ for article in articles:
 print("Classification complete.")
 
 
-## NEW STEP 3 - Generate Summary and Punny Title ##
-###################################################
+## STEP 3 - Punny Title ##
+##########################
 
 def get_punny_title(grouped_headlines):
     """
@@ -200,7 +200,8 @@ def get_punny_title(grouped_headlines):
 
     # System instruction enforces the required title format
     system_instruction = f"""
-    You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news. 
+    You are an expert copywriter for a humorous daily news blog which is written by a fictional reporter, Will MaCowvoy, who is a cow character. 
+    Your job is to create a short, catchy punny title that captures the essence of the day's news. 
     It should be "fun", but not offensive given the gravity of the news
 
     **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News:' followed immediately by the punny hook.
@@ -224,12 +225,11 @@ def get_punny_title(grouped_headlines):
             }
         )
         time.sleep(1)
-        # The model is instructed to include the date prefix in its response.
         return response.text.strip()
+    
     except Exception as e:
         print(f"Error generating punny title: {e}")
-        # Fallback generic title
-        return f"Daily News: Your Daily Dose of Moo-sings"
+        return f"Daily News: Your Daily Dose of Moo-sings" # Fallback generic title
 
 # Exectuion of Step 3
 punny_title = get_punny_title(grouped_headlines)
@@ -324,13 +324,6 @@ def create_html_summary(grouped_headlines):
             font-size: 0.9em;
             color: #6c757d;
         }
-        .cow-post .summary-paragraph {
-            margin-top: 1.5em;
-            margin-bottom: 1.5em;
-            padding: 0.5em 0;
-            border-top: 1px solid #e9ecef;
-            border-bottom: 1px solid #e9ecef;
-        }
         .cow-post .cow-art {
             font-family: monospace, monospace;
             font-size: 1em;
@@ -346,12 +339,7 @@ def create_html_summary(grouped_headlines):
     # --- HTML Structure --- #
     html_parts.append('<div class="cow-post">')
     html_parts.append('  <div class="speech-bubble">')
-    # html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
-
-    # --- Daily Summary Paragraph ---
-    # if daily_summary and daily_summary != "No notable headlines were available today.":
-    #    html_parts.append(f"    <p class='summary-paragraph'><strong>Today's Top Stories:</strong> {html.escape(daily_summary)}</p>")
-
+    
     # Loop through topics and build HTML lists
     for topic, articles in grouped_headlines.items():
         if articles:
