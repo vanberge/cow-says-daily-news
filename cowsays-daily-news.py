@@ -199,7 +199,9 @@ def get_daily_summary(grouped_headlines):
     headline_input = "\n".join(headline_list)
 
     prompt = f"""
-    Analyze the following list of news headlines and sources. Your goal is to synthesize the information and generate a single, compelling paragraph (maximum 5 concise sentences) summarizing the most notable and significant stories of the day, prioritizing global impact over niche topics. Mention 2-3 of the biggest news items.
+    Analyze the following list of news headlines and sources. Your goal is to synthesize the information and generate a single, 
+    compelling paragraph (maximum 5 sentences) summarizing the most notable and significant stories of the day, 
+    prioritizing impact over niche topics. Mention 2-3 of the biggest news items.
 
     **News Headlines and Context:**
     {headline_input}
@@ -238,7 +240,8 @@ def get_punny_title(summary_text):
     
     # System instruction enforces the required title format
     system_instruction = f"""
-    You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news.
+    You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news. 
+    It should be "fun", but not offensive given the gravity of the news
 
     **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News - {current_date_mmddyyyy} - ' followed immediately by the punny hook.
     """
@@ -522,31 +525,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
