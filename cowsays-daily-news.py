@@ -230,7 +230,8 @@ def get_punny_title(summary_text):
     """
     Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
     
-    FIX: Corrected API call to use system_instruction within a config object.
+    FIX: Removed problematic GenerationConfig and merged system instruction into the prompt
+         to avoid SDK compatibility issues.
     """
     print("Generating punny post title...")
     current_date_mmddyyyy = time.strftime("%m/%d/%Y")
@@ -242,16 +243,17 @@ def get_punny_title(summary_text):
     **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News - {current_date_mmddyyyy} - ' followed immediately by the punny hook.
     """
     
-    prompt = f"Create a punny title based on this news summary:\n\n{summary_text}"
+    # --- Merge instruction into the prompt ---
+    full_prompt = f"""
+    {system_instruction}
 
-    config = genai.types.GenerationConfig(
-        system_instruction=system_instruction
-    )
+    Now, create the punny title based on this news summary:
+    {summary_text}
+    """
 
     try:
         response = model.generate_content(
-            prompt,
-            config=config, # Passed system_instruction via the config object
+            full_prompt, # Use the combined prompt
             safety_settings={
                 'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
                 'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
@@ -260,7 +262,7 @@ def get_punny_title(summary_text):
             }
         )
         time.sleep(1)
-        # The model is instructed to include the date prefix.
+        # The model is instructed to include the date prefix in its response.
         return response.text.strip()
     except Exception as e:
         print(f"Error generating punny title: {e}")
