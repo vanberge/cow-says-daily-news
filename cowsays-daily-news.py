@@ -200,7 +200,7 @@ def get_punny_title(grouped_headlines):
 
     # System instruction enforces the required title format
     system_instruction = f"""
-    You are an expert copywriter for a humorous daily news blog which is written by a fictional reporter, Will MaCowvoy, who is a cow character. 
+    You are an expert copywriter for a humorous daily news blog. 
     Your job is to create a short, catchy punny title that captures the essence of the day's news. 
     It should be "fun", but not offensive given the gravity of the news
 
@@ -211,7 +211,7 @@ def get_punny_title(grouped_headlines):
     full_prompt = f"""
     {system_instruction}
 
-    Now, create the punny title based on this grouping of headlines:
+    Now, create the punny title based on this collection of news headlines:
     {headline_input}
     """
     try:
