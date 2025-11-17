@@ -261,7 +261,14 @@ def create_html_summary(grouped_headlines):
     <style>
         .cow-post {
             max-width: 700px;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .cow-post-donate {
+            max-width: 700px;
             margin: 1em auto;
+            padding-top: 20px; 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
         }
@@ -322,7 +329,15 @@ def create_html_summary(grouped_headlines):
             font-weight: 500;
             color: #007bff;
         }
+        .cow-post-donate a {
+            text-decoration: none;
+            font-weight: 500;
+            color: #007bff;
+        }
         .cow-post a:hover {
+            text-decoration: underline;
+        }
+        .cow-post-donate a:hover {
             text-decoration: underline;
         }
         .cow-post .source {
@@ -382,7 +397,7 @@ def create_html_summary(grouped_headlines):
 
     # Donation link in case anyone wants to help support 
     html_parts.append(""" 
-    <div class="cow-post">
+    <div class="cow-post-donate">
       <a href="https://www.buymeacoffee.com/vanberge">🐮 Support the News!</a>
     </div>
     """)
@@ -480,31 +495,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
