@@ -179,12 +179,12 @@ print("Classification complete.")
 ## NEW STEP 3 - Generate Summary and Punny Title ##
 ###################################################
 
-def get_daily_summary(grouped_headlines):
+def get_punny_title(grouped_headlines):
     """
-    Uses Gemini to create a one-paragraph summary of the most notable stories
-    from the grouped headlines, regardless of category. (Requirement 2)
+    Uses Gemini to create a punny title based on the summary and today's date. 
+    
     """
-    print("Generating one-paragraph daily news summary...")
+    print("Generating punny post title...")
     
     headline_list = []
     # Concatenate all headlines and sources into a single input string for the LLM
@@ -198,44 +198,6 @@ def get_daily_summary(grouped_headlines):
 
     headline_input = "\n".join(headline_list)
 
-    prompt = f"""
-    Analyze the following list of news headlines and sources. Your goal is to synthesize the information and generate a single, 
-    compelling paragraph (maximum 5 sentences) summarizing the most notable and significant stories of the day, 
-    prioritizing impact over niche topics. Mention 2-3 of the biggest news items.
-
-    **News Headlines and Context:**
-    {headline_input}
-
-    **Daily News Summary (Single Paragraph):**
-    """
-    try:
-        response = model.generate_content(
-            prompt,
-            safety_settings={
-                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
-                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
-                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
-                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
-            }
-        )
-        time.sleep(1)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Error generating summary: {e}")
-        return "An issue occurred while generating the daily news summary."
-
-daily_summary = get_daily_summary(grouped_headlines)
-print("Daily news summary generated.")
-
-
-def get_punny_title(summary_text):
-    """
-    Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
-    
-    """
-    print("Generating punny post title...")
-    current_date_mmddyyyy = time.strftime("%m/%d/%Y")
-    
     # System instruction enforces the required title format
     system_instruction = f"""
     You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news. 
@@ -248,10 +210,9 @@ def get_punny_title(summary_text):
     full_prompt = f"""
     {system_instruction}
 
-    Now, create the punny title based on this news summary:
-    {summary_text}
+    Now, create the punny title based on this grouping of headlines:
+    {headline_input}
     """
-
     try:
         response = model.generate_content(
             full_prompt, # Use the combined prompt
@@ -268,9 +229,10 @@ def get_punny_title(summary_text):
     except Exception as e:
         print(f"Error generating punny title: {e}")
         # Fallback generic title
-        return f"Daily News - {time.strftime('%m/%d/%Y')} - Your Daily Dose of Moo-sings"
+        return f"Daily News: Your Daily Dose of Moo-sings"
 
-punny_title = get_punny_title(daily_summary)
+# Exectuion of Step 3
+punny_title = get_punny_title(grouped_headlines)
 print(f"Punny title generated: '{punny_title}'")
 
 
