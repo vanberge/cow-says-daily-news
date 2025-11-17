@@ -329,12 +329,13 @@ def create_html_summary(grouped_headlines, daily_summary):
             font-size: 1.3em;
             border-bottom: 2px solid #e9ecef;
             padding-bottom: 5px;
-            margin-top: 1.5em;
+            margin-top: 0;
             color: #495057;
         }
         .cow-post ul {
             list-style-type: none;
             padding-left: 0;
+            padding-bottom: 15px;
         }
         .cow-post li {
             margin-bottom: 0.8em;
