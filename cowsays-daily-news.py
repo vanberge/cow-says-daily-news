@@ -304,7 +304,7 @@ def create_html_summary(grouped_headlines, daily_summary):
             border-radius: 15px;
             padding: 1.5em;
             position: relative;
-            margin-top: .5em;
+            margin-top: 0;
             margin-bottom: 1.5em;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
