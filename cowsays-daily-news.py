@@ -293,7 +293,7 @@ def create_html_summary(grouped_headlines, daily_summary):
     <style>
         .cow-post {
             max-width: 700px;
-            margin: 2em auto;
+            margin: 1em auto;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             line-height: 1.6;
         }
