@@ -398,7 +398,7 @@ def create_html_summary(grouped_headlines):
     return "\n".join(html_parts)
 
 # --- Function call to include the summary ---
-html_content_for_ghost = create_html_summary(grouped_headlines, daily_summary)
+html_content_for_ghost = create_html_summary(grouped_headlines)
 
 # To test the output, uncomment the line below
 # print(html_content_for_ghost)
