@@ -241,7 +241,7 @@ def get_punny_title(summary_text):
     You are an expert copywriter for a humorous daily news blog. Your job is to create one, short, catchy, punny title that captures the essence of the news. 
     It should be "fun", but not offensive given the gravity of the news
 
-    **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News - {current_date_mmddyyyy} - ' followed immediately by the punny hook.
+    **CRITICAL RULE:** The title MUST begin with the prefix: 'Daily News:' followed immediately by the punny hook.
     """
     
     # --- Merge instruction into the prompt ---
@@ -304,6 +304,7 @@ def create_html_summary(grouped_headlines, daily_summary):
             border-radius: 15px;
             padding: 1.5em;
             position: relative;
+            margin-top: .5em;
             margin-bottom: 1.5em;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
