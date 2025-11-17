@@ -8,7 +8,7 @@ import requests
 import jwt
 import json
 import html
-import sys # Added: Necessary for sys.exit()
+import sys # Necessary for sys.exit()
 
 # --- NewsAPI.org Config ---
 # Read API key from environment variable
@@ -54,7 +54,7 @@ def get_top_headlines():
         'pageSize': 25        # limit to 25 articles
     }
 
-    # It's best practice to pass the API key in the header
+    # Pass the API key in the header
     headers = {
         'X-Api-Key': NEWS_API_KEY
     }
@@ -232,8 +232,6 @@ def get_punny_title(summary_text):
     """
     Uses Gemini to create a punny title based on the summary and today's date. (Requirement 1)
     
-    FIX: Removed problematic GenerationConfig and merged system instruction into the prompt
-         to avoid SDK compatibility issues.
     """
     print("Generating punny post title...")
     current_date_mmddyyyy = time.strftime("%m/%d/%Y")
@@ -384,11 +382,11 @@ def create_html_summary(grouped_headlines, daily_summary):
     # --- HTML Structure --- #
     html_parts.append('<div class="cow-post">')
     html_parts.append('  <div class="speech-bubble">')
-    html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
+    # html_parts.append("    <h2>Good Moo-rning! Here's your daily news...</h2>")
 
-    # --- ADDED: Daily Summary Paragraph (Requirement 2 integration) ---
-    if daily_summary and daily_summary != "No notable headlines were available today.":
-        html_parts.append(f"    <p class='summary-paragraph'><strong>Today's Top Stories:</strong> {html.escape(daily_summary)}</p>")
+    # --- Daily Summary Paragraph ---
+    # if daily_summary and daily_summary != "No notable headlines were available today.":
+    #    html_parts.append(f"    <p class='summary-paragraph'><strong>Today's Top Stories:</strong> {html.escape(daily_summary)}</p>")
 
     # Loop through topics and build HTML lists
     for topic, articles in grouped_headlines.items():
@@ -435,16 +433,16 @@ def create_html_summary(grouped_headlines, daily_summary):
 
     return "\n".join(html_parts)
 
-# --- Updated function call to include the summary ---
+# --- Function call to include the summary ---
 html_content_for_ghost = create_html_summary(grouped_headlines, daily_summary)
 
-# Test the output if needed (uncomment the line below)
+# To test the output, uncomment the line below
 # print(html_content_for_ghost)
 print("HTML summary generated.")
 
 
-## Step 5 - Post it to Ghost (was Step 4) ##
-############################################
+## Step 5 - Post it to Ghost ##
+###############################
 
 print("Posting to Ghost...")
 
@@ -500,7 +498,7 @@ author_id = GHOST_AUTHOR
 # Create a payload that uses a single "html" card.
 draft_data = {
     'posts': [{
-        # --- UPDATED: Use the punny_title (Requirement 1 integration) ---
+        # --- Use punny_title ---
         'title': punny_title, 
         'html': html_content_for_ghost,  # Use source?html in call now lets us use it here
         'authors': [  # Set the Author
@@ -525,31 +523,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
