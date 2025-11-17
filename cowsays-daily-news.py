@@ -269,7 +269,7 @@ def create_html_summary(grouped_headlines):
             background-color: #f8f9fa;
             border: 2px solid #dee2e6;
             border-radius: 15px;
-            padding: 1.5em;
+            padding: .5em;
             position: relative;
             margin-top: 0;
             margin-bottom: 1.5em;
