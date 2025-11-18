@@ -88,7 +88,8 @@ articles = get_top_headlines()
 if articles:
     print(f"Successfully fetched {len(articles)} headlines from NewsAPI.org.")
 else:
-    print("Warning: Failed to fetch articles. Continuing with empty data.")
+    print("Error: Failed to fetch articles. Exiting")
+    sys.exit(1)
 
 
 ## Step 2 - Classify the news into Categories ##
