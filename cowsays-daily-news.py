@@ -178,7 +178,7 @@ for article in articles:
 
     #Filter out some sources
     print("Checking sources for and filtering out social media...") 
-    filter_urls = ( 'facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com')
+    filter_urls = ('facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com')
     article_url = article['url']
 
     if any(source in article_url for source in filter_urls):
@@ -391,7 +391,8 @@ def create_html_summary(grouped_headlines):
             html_parts.append("    <ul>")
             for article in articles:
                 # Sanitize all user-facing data
-                safe_url = html.escape(article['url'])
+                # safe_url = html.escape(article['url'])
+                safe_url = article['url']
                 safe_headline = html.escape(article['headline'])
                 safe_source = html.escape(article['source'])
 
