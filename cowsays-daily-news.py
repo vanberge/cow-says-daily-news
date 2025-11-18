@@ -43,10 +43,10 @@ if not GHOST_AUTHOR:
 def get_top_headlines():
     """
     Fetches the top 30 US headlines using the official NewsAPI.org v2 endpoint.
+    Includes a retry mechanism: checks once, waits 30 seconds on failure, and tries again.
     Documentation: https://newsapi.org/docs/endpoints/top-headlines
     """
-    print("Connecting to NewsAPI.org to fetch top headlines...")
-
+     
     url = "https://newsapi.org/v2/top-headlines"
 
     # Define parameters according to NewsAPI docs
@@ -59,28 +59,41 @@ def get_top_headlines():
     headers = {
         'X-Api-Key': NEWS_API_KEY
     }
+    
+    max_retries = 3
+    retry_delay = 30 # Seconds
 
-    try:
-        response = requests.get(url, params=params, headers=headers)
-        response.raise_for_status() # Raises error for 4xx/5xx status codes
+    for attempt in range(1, max_retries + 1):
+        print(f"Connecting to NewsAPI.org (Attempt {attempt}/{max_retries})...")
 
-        data = response.json()
+        try:
+            response = requests.get(url, params=params, headers=headers)
+            response.raise_for_status() # Raises error for 4xx/5xx status codes
 
-        # NewsAPI returns a 'status' field we should check
-        if data.get('status') != 'ok':
-            print(f"NewsAPI Error: {data.get('code')} - {data.get('message')}")
-            return []
+            data = response.json()
 
-        # The articles are exactly where we need them
-        articles = data.get('articles', [])
-        return articles
+            # NewsAPI returns a 'status' field we should check
+            if data.get('status') != 'ok':
+                print(f"NewsAPI Error: {data.get('code')} - {data.get('message')}")
+                # If it's a logic error (like bad API key), retrying usually won't help, so we break or return empty
+                return []
 
-    except requests.exceptions.RequestException as e:
-        print(f"Network error fetching news: {e}")
-        return []
-    except json.JSONDecodeError:
-        print("Error: Received invalid JSON from NewsAPI.")
-        return []
+            # The articles are exactly where we need them
+            articles = data.get('articles', [])
+            return articles
+
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as e:
+            print(f"Error fetching news: {e}")
+            
+            # If this is not the last attempt, wait and retry
+            if attempt < max_retries:
+                print(f"Waiting {retry_delay} seconds before retrying...")
+                time.sleep(retry_delay)
+            else:
+                print("All retry attempts failed.")
+                return []
+
+    return []
 
 # --- Execution of step 1 ---
 articles = get_top_headlines()
@@ -88,7 +101,7 @@ articles = get_top_headlines()
 if articles:
     print(f"Successfully fetched {len(articles)} headlines from NewsAPI.org.")
 else:
-    print("Error: Failed to fetch articles. Exiting")
+    print("Error: Failed to fetch articles after retries. Exiting")
     sys.exit(1)
 
 
@@ -505,31 +518,4 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
 
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
