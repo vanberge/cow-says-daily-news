@@ -108,7 +108,7 @@ else:
 ## Step 2 - Classify the news into Categories ##
 ################################################
 
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel('gemini-3-pro-preview')
 
 def get_news_topic(headline):
     print(f"Classifying news article: {headline}")
@@ -391,8 +391,7 @@ def create_html_summary(grouped_headlines):
             html_parts.append("    <ul>")
             for article in articles:
                 # Sanitize all user-facing data
-                # safe_url = html.escape(article['url'])
-                safe_url = article['url']
+                safe_url = html.escape(article['url']).replace('?', '&#63;').replace('=', '&#61;')
                 safe_headline = html.escape(article['headline'])
                 safe_source = html.escape(article['source'])
 
