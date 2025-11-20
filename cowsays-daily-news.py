@@ -392,7 +392,7 @@ def create_html_summary(grouped_headlines):
             for article in articles:
                 # Sanitize all user-facing data
                 print(f"Original URL: {article['url']}")
-                safe_url = html.escape(article['url']).replace('\\u003d', '=')
+                safe_url = html.escape(article['url']).replace(r'\\u003d', '=')
                 print(f"Sanitized URL:{safe_url}")
                 safe_headline = html.escape(article['headline'])
                 safe_source = html.escape(article['source'])
