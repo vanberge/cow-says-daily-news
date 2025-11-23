@@ -212,7 +212,7 @@ def get_punny_title(grouped_headlines):
     
     # Get the current day of the week (e.g., "Monday") and construct the new prefix
     day_name = datetime.datetime.now().strftime("%A")
-    title_prefix = f"{day_name}'s News:"
+    title_prefix = f"{day_name} Edition:"
     
     headline_list = []
     # Concatenate all headlines and sources into a single input string for the LLM
@@ -232,7 +232,7 @@ def get_punny_title(grouped_headlines):
     Your job is to create a short, catchy title that captures the essence of the day's news.
     You will consider how impactful each headline is, and the title you generate should reference 1-2 of the headlines
     
-    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the headline.
+    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the title you generated.
     """
     
     # --- Merge instruction into the prompt ---
