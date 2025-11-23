@@ -228,11 +228,11 @@ def get_punny_title(grouped_headlines):
 
     # System instruction enforces the required title format, now using the dynamic prefix
     system_instruction = f"""
-    You are an expert copywriter for a fun daily news blog. 
+    You are an expert copywriter for a daily news blog. 
     Your job is to create a short, catchy title that captures the essence of the day's news.
     You will consider how impactful each headline is, and the title you generate should reference 1-2 of the headlines
     
-    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the catchy headline.
+    **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the headline.
     """
     
     # --- Merge instruction into the prompt ---
