@@ -2,6 +2,7 @@
 
 [![Cow-Says Daily News Bot](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml/badge.svg)](https://github.com/vanberge/cow-says-daily-news/actions/workflows/daily_news.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+[![License: GPLv3](https://img.shields.io/badge/License-GPLv3-orange.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
 
 A daily news bot that uses NewsAPI.org and Google's Gemini LLM to curate top US headlines and classify them into categories, format them into a modern "cowsay"-style speech bubble, and automatically publishes the post to a Ghost blog.
 
