@@ -42,7 +42,7 @@ if not GHOST_AUTHOR:
 
 def get_top_headlines():
     """
-    Fetches the top 30 US headlines using the official NewsAPI.org v2 endpoint.
+    Fetches the top 25 US headlines using the official NewsAPI.org v2 endpoint.
     Includes a retry mechanism: checks once, waits 30 seconds on failure, and tries again.
     Documentation: https://newsapi.org/docs/endpoints/top-headlines
     """
@@ -108,7 +108,7 @@ else:
 ## Step 2 - Classify the news into Categories ##
 ################################################
 
-model = genai.GenerativeModel('gemini-3-flash')
+model = genai.GenerativeModel('gemini-3-flash-preview')
 
 def get_news_topic(headline):
     print(f"Classifying news article: {headline}")
