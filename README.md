@@ -32,7 +32,7 @@ The script operates in four main steps:
     Scrape NewsAPI.org for top headlines in the us (25 maximum articles) and return a clean JSON list containing the `title`, `url`, and `source.name`.
 
 2.  **Step 2: Classify News**
-    The script iterates through each headline an uses Google's Gemini API to classify each one into a predefined category (e.g., `Politics`, `Technology`, `Other`). The classified articles are stored in a Python dictionary.
+    The script iterates through each headline an uses Google's Gemini API to classify each one into a predefined category (e.g., `Politics`, `Technology`, `Other`). The classified articles are stored in a Python dictionary. It also filters for some social media or horoscope to ensure the news headlines are valuable.
 
 3.  **Step 3: Build HTML Post**
     A Python function dynamically generates a single, self-contained HTML string. This string includes all the CSS needed to render the responsive "speech bubble," the formatted news lists with links, and the cow `pre` (monospace) art.
