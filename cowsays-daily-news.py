@@ -108,7 +108,7 @@ else:
 ## Step 2 - Classify the news into Categories ##
 ################################################
 
-model = genai.GenerativeModel('gemini-3.1-flash-lite-prevew')
+model = genai.GenerativeModel('gemini-3.1-flash-lite-preview')
 
 def get_news_topic(headline):
     print(f"Classifying news article: {headline}")
