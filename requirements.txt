@@ -1,5 +1,5 @@
 requests
-google-genai
+google-generativeai
 cowsay
 pyjwt
 python-dotenv
