@@ -22,7 +22,7 @@ if not NEWS_API_KEY:
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
-genai.configure(api_key=GEMINI_API_KEY)
+genai.Client(api_key=GEMINI_API_KEY)
 
 # --- Ghost API Config ---
 # Read API key from environment variable
