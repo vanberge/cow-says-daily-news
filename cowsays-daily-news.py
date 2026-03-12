@@ -1,7 +1,7 @@
 ## All imports and API keys at the top ##
 #########################################
 
-import google.generativeai as genai
+import google.genai as genai
 import os
 import time
 import datetime
