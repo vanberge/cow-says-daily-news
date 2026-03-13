@@ -1,7 +1,8 @@
 ## All imports and API keys at the top ##
 #########################################
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import time
 import datetime
@@ -17,12 +18,36 @@ NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
 if not NEWS_API_KEY:
     raise ValueError("NEWS_API_KEY environment variable not set.")
 
-# --- Configure Gemini ---
+# --- Configure Gemini (UPDATED FOR NEW SDK) ---
 # Read API key from environment variable
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set.")
-genai.configure(api_key=GEMINI_API_KEY)
+
+# Initialize the new Client object
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+# Define shared safety settings for the new SDK
+safety_config = types.GenerateContentConfig(
+    safety_settings=[
+        types.SafetySetting(
+            category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+        ),
+        types.SafetySetting(
+            category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+        ),
+        types.SafetySetting(
+            category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+        ),
+        types.SafetySetting(
+            category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold=types.HarmBlockThreshold.BLOCK_NONE,
+        )
+    ]
+)
 
 # --- Ghost API Config ---
 # Read API key from environment variable
@@ -108,8 +133,6 @@ else:
 ## Step 2 - Classify the news into Categories ##
 ################################################
 
-model = genai.GenerativeModel('gemini-2.5-flash')
-
 def get_news_topic(headline):
     print(f"Classifying news article: {headline}")
     """
@@ -140,14 +163,11 @@ def get_news_topic(headline):
     Category:
     """
     try:
-        response = model.generate_content(
-            prompt,
-            safety_settings={
-                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
-                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
-                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
-                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
-            }
+        # UPDATED: Use client.models.generate_content and the new model ID
+        response = client.models.generate_content(
+            model='gemini-3.1-flash-lite-preview',
+            contents=prompt,
+            config=safety_config
         )
         time.sleep(1)
         return response.text.strip()
@@ -206,7 +226,6 @@ print("Classification complete.")
 def get_punny_title(grouped_headlines):
     """
     Uses Gemini to create a punny title based on the summary and today's date. 
-    
     """
     print("Generating punny post title...")
     
@@ -243,14 +262,11 @@ def get_punny_title(grouped_headlines):
     {headline_input}
     """
     try:
-        response = model.generate_content(
-            full_prompt, # Use the combined prompt
-            safety_settings={
-                'HARM_CATEGORY_HATE_SPEECH': 'BLOCK_NONE',
-                'HARM_CATEGORY_HARASSMENT': 'BLOCK_NONE',
-                'HARM_CATEGORY_SEXUALLY_EXPLICIT': 'BLOCK_NONE',
-                'HARM_CATEGORY_DANGEROUS_CONTENT': 'BLOCK_NONE',
-            }
+        # UPDATED: Use client.models.generate_content and the new model ID
+        response = client.models.generate_content(
+            model='gemini-3.1-flash-lite-preview',
+            contents=full_prompt, 
+            config=safety_config
         )
         time.sleep(1)
         return response.text.strip()
@@ -259,7 +275,7 @@ def get_punny_title(grouped_headlines):
         print(f"Error generating punny title: {e}")
         return f"Daily News: Your Daily Dose of Moo-sings" # Fallback generic title
 
-# Exectuion of Step 3
+# Execution of Step 3
 punny_title = get_punny_title(grouped_headlines)
 print(f"Punny title generated: '{punny_title}'")
 
@@ -520,31 +536,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
