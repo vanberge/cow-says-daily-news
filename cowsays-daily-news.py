@@ -170,7 +170,19 @@ def get_news_topic(headline):
             config=safety_config
         )
         time.sleep(1)
-        return response.text.strip()
+        
+        raw_result = response.text.strip()
+        
+        # Lighter models often add markdown (like **Politics**) or prefixes (like "Category: Politics").
+        # We do a substring match to ensure we perfectly match our dictionary keys.
+        valid_categories = ["Politics", "Technology", "Health", "Business", "Sports", "Science", "Weather", "Education", "Entertainment"]
+        
+        for cat in valid_categories:
+            if cat.lower() in raw_result.lower():
+                return cat
+                
+        return "Other" # Fallback if none of the specific topics match
+        
     except Exception as e:
         print(f"Error classifying headline '{headline}': {e}")
         return "Other"
@@ -269,7 +281,13 @@ def get_punny_title(grouped_headlines):
             config=safety_config
         )
         time.sleep(1)
-        return response.text.strip()
+        
+        # Clean up quotes if the model wraps the title in them
+        title = response.text.strip()
+        if title.startswith('"') and title.endswith('"'):
+            title = title[1:-1]
+            
+        return title
     
     except Exception as e:
         print(f"Error generating punny title: {e}")
@@ -534,5 +552,4 @@ post_id = draft_json['posts'][0]['id']
 updated_at = draft_json['posts'][0]['updated_at']
 
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
-
 
