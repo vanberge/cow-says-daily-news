@@ -262,6 +262,7 @@ def get_punny_title(grouped_headlines):
     You are an expert copywriter for a daily news blog. 
     Your job is to create a short, catchy title that captures the essence of the day's news.
     You will consider how impactful each headline is, and the title you generate should reference 1-2 of the headlines
+    You should avoid overly generic statements like 'global tensions spike' or 'markets brace' as these could often be derived from headlines and grow repetitive in a daily news blog
     
     **CRITICAL RULE:** The title MUST begin with the prefix: '{title_prefix}' followed immediately by the title you generated.
     """
