@@ -77,7 +77,7 @@ def get_top_headlines():
     # Define parameters according to NewsAPI docs
     params = {
         'country': 'us',      # standard 2-letter ISO 3166-1 code
-        'pageSize': 26        # Shoot for 25 articles, with at least 1 filtered out.
+        'pageSize': 30        # Shoot for 25 articles, with at least a few filtered out.
     }
 
     # Pass the API key in the header
@@ -199,7 +199,12 @@ for article in articles:
     if "horoscope" in headline.lower():
         print(f"-> Filtered (Horoscope): {headline}")
         continue
-
+        
+    print("Checking for blocked keywords...")
+    if "trump" in headline.lower():
+        print(f"-> Filtered (Blocked Term): {headline}")
+        continue
+    
     topic = get_news_topic(headline)
     source_name = article.get('source', {}).get('name', 'Unknown Source')
     
