@@ -194,7 +194,7 @@ grouped_headlines = {
 }
 
 # Add blocked news sources that don't represent reputable news articles.
-filter_urls = ['facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com']
+filter_urls = ['facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com', 'foxnews.com', 'newsmax.com']
 
 # Add blocked terms here (combined horoscopes here to keep code dry)
 blocked_terms = ["trump", "white house", "IRS", "horoscope"]
@@ -566,4 +566,31 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
+# STEP 5c - Publish and Email (Step 2 of 2)
 
+publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
+
+publish_data = {
+    'posts': [{
+        'updated_at': updated_at, # Must match the current server state
+        'status': 'published',
+        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
+    }]
+}
+
+publish_response = requests.put(publish_url, json=publish_data, headers=headers)
+
+if publish_response.status_code == 200:
+    res_json = publish_response.json()
+    post = res_json['posts'][0]
+    
+    # Check if email was actually triggered by inspecting the response
+    email_info = post.get('email')
+    if email_info:
+        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
+    else:
+        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
+        
+    print(f"Post URL: {post.get('url')}")
+else:
+    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
