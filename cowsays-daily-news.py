@@ -77,7 +77,7 @@ def get_top_headlines():
     # Define parameters according to NewsAPI docs
     params = {
         'country': 'us',      # standard 2-letter ISO 3166-1 code
-        'pageSize': 30        # Shoot for 25 articles, with at least a few filtered out.
+        'pageSize': 32        # Shoot for 25 articles, with at least a few filtered out.
     }
 
     # Pass the API key in the header
@@ -187,50 +187,56 @@ def get_news_topic(headline):
         print(f"Error classifying headline '{headline}': {e}")
         return "Other"
 
+# Define the categories that most news stories will fall into
 grouped_headlines = {
     "Politics": [], "Technology": [], "Health": [], "Business": [], "Sports": [],
     "Science": [], "Weather": [], "Education": [], "Entertainment": [], "Other": []
 }
 
-for article in articles:
-    headline = article['title']
+# Add blocked news sources that don't represent reputable news articles.
+filter_urls = ['facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com']
 
-    print("Checking for Horoscopes...") #these show up sometimes in NewsAPI.org, we dont want them
-    if "horoscope" in headline.lower():
-        print(f"-> Filtered (Horoscope): {headline}")
-        continue
-        
-    print("Checking for blocked keywords...")
-    if "trump" in headline.lower():
-        print(f"-> Filtered (Blocked Term): {headline}")
-        continue
+# Add blocked terms here (combined horoscopes here to keep code dry)
+blocked_terms = ["trump", "white house", "IRS", "horoscope"]
+
+for article in articles:
+    article_url = article['url']
+    headline = article['title']
     
-    topic = get_news_topic(headline)
-    source_name = article.get('source', {}).get('name', 'Unknown Source')
-    
-    # Format from NewsAPI keeps the source as part of the headline. This removes it
+    # 1. Clean the headline formatting first so get_news_topic() gets clean text
     separator = ' - '
     if separator in headline:
         headline = headline.split(separator, 1)[0]
+        
+    headline_lower = headline.lower()
+        
+    # 2. Check for Blocked terms (including horoscopes)
+    print("Checking for Blocked terms...")
+    if any(term in headline_lower for term in blocked_terms):
+        print(f"-> Filtered (Blocked Term/Horoscope): {headline}")
+        continue
 
-    #Filter out some sources
-    print("Checking sources for and filtering out social media...") 
-    filter_urls = ('facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com')
-    article_url = article['url']
-
+    # 3. Filter out some sources
+    print("Checking if blocked source...")
     if any(source in article_url for source in filter_urls):
         print(f"Found forbidden source in URL: {article_url}, skipping")
         continue
+    
+    # 4. Classify and build payload
+    topic = get_news_topic(headline)
+    source_name = article.get('source', {}).get('name', 'Unknown Source')
 
     article_data = {
         "headline": headline,
         "source": source_name,
-        "url": article['url']
+        "url": article_url
     }
 
+    # 5. Sort into categories with strict limits
     if topic in grouped_headlines and len(grouped_headlines[topic]) < 10:
         grouped_headlines[topic].append(article_data)
     elif topic not in grouped_headlines:
+        # Only completely unrecognized topics spill into "Other" (max 8)
         if len(grouped_headlines["Other"]) < 8:
             grouped_headlines["Other"].append(article_data)
 
@@ -560,31 +566,4 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
 
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
