@@ -194,10 +194,10 @@ grouped_headlines = {
 }
 
 # Add blocked news sources that don't represent reputable news articles.
-filter_urls = ['facebook.com','x.com','.gov','bsky.app','threads.com','truthsocial.com','reddit.com','instagram.com','tiktok.com', 'foxnews.com', 'newsmax.com']
+filter_urls = ["facebook.com", "x.com", ".gov", "bsky.app", "threads.com", "truthsocial.com", "reddit.com", "instagram.com", "tiktok.com", "foxnews.com", "newsmax.com"]
 
 # Add blocked terms here (combined horoscopes here to keep code dry)
-blocked_terms = ["trump", "white house", "IRS", "horoscope"]
+blocked_terms = ["trump", "white house", "IRS", "supreme court", "kushner", "horoscope"]
 
 for article in articles:
     article_url = article['url']
