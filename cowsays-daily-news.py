@@ -142,16 +142,17 @@ def get_news_topic(headline):
     You are an expert news article classifier. Your task is to analyze a news article headline and assign a single, most relevant category from the defined list.
 
     **CATEGORY LIST AND DEFINITIONS:**
-    1.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
+    1.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
     2.  **Technology:** Software, hardware, AI, social media platform changes, consumer electronics, cybersecurity.
-    3.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
-    4.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
-    5.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
-    6.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
-    7.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
-    8.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
+    3.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
+    4.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
+    5.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
+    6.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
+    7.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
+    8.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
     9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
-    10.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
+    10. **T's and P's':** Disaster events that often result in broad sadness due to scaled injury, loss of life, either natural or due to violent acts.
+    11.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
 
     **PRIORITIZATION RULES (TO REDUCE 'OTHER'):**
     1.  **Choose the Primary Subject:** Classify based on the core event (e.g., Tech CEO Buys Political Ad -> Technology).
@@ -165,7 +166,7 @@ def get_news_topic(headline):
     try:
         # UPDATED: Use client.models.generate_content and the new model ID
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview',
+            model='gemini-3.1-flash-lite',
             contents=prompt,
             config=safety_config
         )
@@ -566,31 +567,3 @@ updated_at = draft_json['posts'][0]['updated_at']
 print(f"Draft created (ID: {post_id}). Publishing and emailing...")
 
 
-# STEP 5c - Publish and Email (Step 2 of 2)
-
-publish_url = f"{GHOST_URL}/ghost/api/admin/posts/{post_id}/?newsletter={newsletter_slug}"
-
-publish_data = {
-    'posts': [{
-        'updated_at': updated_at, # Must match the current server state
-        'status': 'published',
-        'email_recipient_filter': 'all' # 'all', 'none', or specific filter like 'status:free'
-    }]
-}
-
-publish_response = requests.put(publish_url, json=publish_data, headers=headers)
-
-if publish_response.status_code == 200:
-    res_json = publish_response.json()
-    post = res_json['posts'][0]
-    
-    # Check if email was actually triggered by inspecting the response
-    email_info = post.get('email')
-    if email_info:
-        print(f"Success! Post published. Email status: {email_info.get('status')} (Recipients: {email_info.get('recipient_count')})")
-    else:
-        print("Post published, but NO email object returned. Please check your Mailgun settings in Ghost Admin.")
-        
-    print(f"Post URL: {post.get('url')}")
-else:
-    print(f"Failed to publish/email: {publish_response.status_code} - {publish_response.text}")
