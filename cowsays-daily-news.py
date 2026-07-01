@@ -151,7 +151,7 @@ def get_news_topic(headline):
     7.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
     8.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
     9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
-    10. **T's and P's':** Disaster events that often result in broad sadness due to scaled injury, loss of life, either natural or due to violent acts.
+    10. **T's and P's:** Disaster events that often result in broad sadness due to scaled injury, loss of life, either natural or due to violent acts.
     11.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
 
     **PRIORITIZATION RULES (TO REDUCE 'OTHER'):**
@@ -176,7 +176,7 @@ def get_news_topic(headline):
         
         # Lighter models often add markdown (like **Politics**) or prefixes (like "Category: Politics").
         # We do a substring match to ensure we perfectly match our dictionary keys.
-        valid_categories = ["Politics", "Technology", "Health", "Business", "Sports", "Science", "Weather", "Education", "Entertainment"]
+        valid_categories = ["Business", "Technology", "Politics", "Sports", "Health", "Education", "Science", "Weather", "Entertainment", "T's and P's"]
         
         for cat in valid_categories:
             if cat.lower() in raw_result.lower():
@@ -190,8 +190,8 @@ def get_news_topic(headline):
 
 # Define the categories that most news stories will fall into
 grouped_headlines = {
-    "Politics": [], "Technology": [], "Health": [], "Business": [], "Sports": [],
-    "Science": [], "Weather": [], "Education": [], "Entertainment": [], "Other": []
+    "Business": [], "Technology": [], "Politics": [], "Sports": [], "Health": [],
+    "Education": [], "Science": [], "Weather": [], "Entertainment": [], "T's and P's": [], "Other": []
 }
 
 # Add blocked news sources that don't represent reputable news articles.
@@ -289,7 +289,7 @@ def get_punny_title(grouped_headlines):
     try:
         # UPDATED: Use client.models.generate_content and the new model ID
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview',
+            model='gemini-3.1-flash-lite',
             contents=full_prompt, 
             config=safety_config
         )
