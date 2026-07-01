@@ -144,12 +144,12 @@ def get_news_topic(headline):
     **CATEGORY LIST AND DEFINITIONS:**
     1.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
     2.  **Technology:** Software, hardware, AI, social media platform changes, consumer electronics, cybersecurity.
-    3.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
-    4.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
-    5.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
-    6.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
-    7.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
-    8.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
+    3.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
+    4.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
+    5.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
+    6.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
+    7.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
+    8.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
     9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
     10. **T's and P's:** Disaster events that often result in broad sadness due to scaled injury, loss of life, either natural or due to violent acts.
     11.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
@@ -176,7 +176,7 @@ def get_news_topic(headline):
         
         # Lighter models often add markdown (like **Politics**) or prefixes (like "Category: Politics").
         # We do a substring match to ensure we perfectly match our dictionary keys.
-        valid_categories = ["Business", "Technology", "Politics", "Sports", "Health", "Education", "Science", "Weather", "Entertainment", "T's and P's"]
+        valid_categories = ["Business", "Technology", "Education", "Science", "Weather", "Health", "Sports", "Politics", "Entertainment", "T's and P's"]
         
         for cat in valid_categories:
             if cat.lower() in raw_result.lower():
@@ -190,8 +190,8 @@ def get_news_topic(headline):
 
 # Define the categories that most news stories will fall into
 grouped_headlines = {
-    "Business": [], "Technology": [], "Politics": [], "Sports": [], "Health": [],
-    "Education": [], "Science": [], "Weather": [], "Entertainment": [], "T's and P's": [], "Other": []
+    "Business": [], "Technology": [], "Education": [], "Science": [], "Weather": [],
+    "Health": [], "Sports": [], "Politics": [], "Entertainment": [], "T's and P's": [], "Other": []
 }
 
 # Add blocked news sources that don't represent reputable news articles.
