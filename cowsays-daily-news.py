@@ -27,6 +27,9 @@ if not GEMINI_API_KEY:
 # Initialize the new Client object
 client = genai.Client(api_key=GEMINI_API_KEY)
 
+# Define the Model to use, and provide a fallback
+DEFAULT_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+
 # Define shared safety settings for the new SDK
 safety_config = types.GenerateContentConfig(
     safety_settings=[
@@ -166,7 +169,7 @@ def get_news_topic(headline):
     try:
         # UPDATED: Use client.models.generate_content and the new model ID
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite',
+            model=DEFAULT_MODEL,
             contents=prompt,
             config=safety_config
         )
@@ -289,7 +292,7 @@ def get_punny_title(grouped_headlines):
     try:
         # UPDATED: Use client.models.generate_content and the new model ID
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite',
+            model=DEFAULT_MODEL,
             contents=full_prompt, 
             config=safety_config
         )
