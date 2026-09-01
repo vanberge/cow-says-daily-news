@@ -28,7 +28,10 @@ if not GEMINI_API_KEY:
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Define the Model to use, and provide a fallback
-DEFAULT_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
+DEFAULT_MODEL = os.environ.get("GEMINI_MODEL")
+if not DEFAULT_MODEL:
+    DEFAULT_MODEL = "gemini-3.5-flash-lite"
+    print(f"GEMINI_MODEL not set, defaulting to '{DEFAULT_MODEL}'")
 
 # Define shared safety settings for the new SDK
 safety_config = types.GenerateContentConfig(
