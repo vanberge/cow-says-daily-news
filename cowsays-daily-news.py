@@ -29,7 +29,7 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Define the Model to use, and provide a fallback
 DEFAULT_MODEL = os.environ.get("GEMINI_MODEL")
-print(f"Default model found, using: {GEMINI_MODEL}")
+print(f"Default model found, using: {DEFAULT_MODEL}")
 if not DEFAULT_MODEL:
     DEFAULT_MODEL = "gemini-3.8-flash"
     print(f"GEMINI_MODEL not set, defaulting to '{DEFAULT_MODEL}'")
