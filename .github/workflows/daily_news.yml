@@ -2,7 +2,8 @@ name: Cow-Says Daily News Bot
 
 on:
   schedule:
-    - cron: '05 5 * * *'
+    - cron: '55 6 * * *'
+      timezone: 'America/New_York'
   workflow_dispatch:
     # This allows you to manually trigger the workflow from the GitHub Actions tab
 
