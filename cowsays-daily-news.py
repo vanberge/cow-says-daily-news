@@ -197,8 +197,8 @@ def get_news_topic(headline):
 
 # Define the categories that most news stories will fall into
 grouped_headlines = {
-    "Business": [], "Technology": [], "Education": [], "Science": [], "Weather": [],
-    "Health": [], "Sports": [], "Politics": [], "Entertainment": [], "T's and P's": [], "Other": []
+    "Politics": [], "Business": [], "Technology": [], "Weather": [], "Health": [],
+    "Education": [], "Science": [], "Sports": [], "Entertainment": [], "T's and P's": [], "Other": []
 }
 
 # Add blocked news sources that don't represent reputable news articles.
