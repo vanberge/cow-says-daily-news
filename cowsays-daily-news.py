@@ -149,23 +149,23 @@ def get_news_topic(headline):
     You are an expert news article classifier. Your task is to analyze a news article headline and assign a single, most relevant category from the defined list.
 
     **CATEGORY LIST AND DEFINITIONS:**
-    1.  **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
-    2.  **Technology:** Software, hardware, AI, social media platform changes, consumer electronics, cybersecurity.
-    3.  **Education:** Information on schools, universities, teaching professions and students in public and higher education.
-    4.  **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
-    5.  **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
-    6.  **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
-    7.  **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
-    8.  **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
-    9.  **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
+    1. **Politics:** Government, elections, domestic policy, legislation, legal matters (e.g., Supreme Court rulings, major trials).
+    2. **Business:** Stock markets, corporate earnings, industry trends, personal finance, economic indicators (inflation, employment).
+    3. **Technology:** Software, hardware, AI, social media platform changes, consumer electronics, cybersecurity.
+	4. **Weather:** Notable Storm impacts, forecasts, information on tornadoes, hurricanes, excessive heat or cold.
+    5. **Health:** Medical breakthroughs, public health, nutrition, fitness, mental wellness, and general lifestyle trends (e.g., travel, food).
+	6. **Education:** Information on schools, universities, teaching professions and students in public and higher education.
+    7. **Science:** Space exploration, physics, chemistry, biology (non-medical), geology, climate change, and conservation efforts.
+	8. **Sports:** Professional or major amateur team/athlete news, game results, sports business, and related controversies.
+    9. **Entertainment:** Movies, music, television, celebrity gossip, pop culture, art, and gaming.
     10. **T's and P's:** Disaster events that often result in broad sadness due to scaled injury, loss of life, either natural or due to violent acts.
-    11.  **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
+    11. **Other:** Use only if the article's primary subject is completely irrelevant or too vague to fit any other category. This should be used as an absolute last resort.
 
     **PRIORITIZATION RULES (TO REDUCE 'OTHER'):**
-    1.  **Choose the Primary Subject:** Classify based on the core event (e.g., Tech CEO Buys Political Ad -> Technology).
-    2.  **Be Aggressive:** You MUST select one of the defined categories (1-9) if there is any reasonable connection.
-    3.  **Ambiguity Fallback:** If a headline is ambiguous, default to the category that represents the broader trend or source institution.
-    4.  **Use 'Other' ONLY if categories 1-9 are not broadly applicable to the headline.**
+    1. **Choose the Primary Subject:** Classify based on the core event (e.g., Tech CEO Buys Political Ad -> Technology).
+    2. **Be Aggressive:** You MUST select one of the defined categories (1-9) if there is any reasonable connection.
+    3. **Ambiguity Fallback:** If a headline is ambiguous, default to the category that represents the broader trend or source institution.
+    4. **Use 'Other' ONLY if categories 1-9 are not broadly applicable to the headline.**
 
     Headline: "{headline}"
     Category:
