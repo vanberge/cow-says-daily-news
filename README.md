@@ -92,7 +92,7 @@ python cowsays-daily-news.py
 
 CowSaysDailyNews.com - [Full license](https://github.com/vanberge/cow-says-daily-news/blob/main/LICENSE)
 
-Copyright (C) 2025 Eric VanBergen
+Copyright (C) 2026 Eric VanBergen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
